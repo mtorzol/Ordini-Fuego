@@ -37,7 +37,7 @@
 html,body{height:100%;overflow-x:hidden}
 body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
 .screen{display:none;min-height:100vh}.screen.active{display:block}
-
+ 
 /* TOPBAR */
 .topbar{position:sticky;top:0;z-index:90;background:var(--topbg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 14px;height:52px;display:flex;align-items:center;gap:10px}
 .topbar-logo{font-size:13px;font-weight:700;color:var(--green);flex-shrink:0}
@@ -47,7 +47,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .nav-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.3px;cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap}
 .nav-btn.active{background:var(--s2);border-color:var(--border2);color:var(--text)}
 .theme-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-
+ 
 /* SUPPLIER TABS */
 .stabs-wrap{overflow-x:auto;padding:10px 14px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--border);background:var(--s1)}
 .stabs-wrap::-webkit-scrollbar{display:none}
@@ -55,7 +55,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .stab{padding:9px 15px;border:none;background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
 .stab.active{color:var(--text);border-bottom-color:var(--green)}
 .stab-add{padding:9px 12px;border:none;background:transparent;color:var(--muted2);font-size:17px;cursor:pointer;border-bottom:2px solid transparent}
-
+ 
 /* ORDER PANEL */
 .order-wrap{padding:14px}
 .panel{display:none}.panel.active{display:block}
@@ -74,7 +74,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .time-inp{background:var(--s2);border:1px solid var(--border2);border-radius:7px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;display:none;width:100px}
 .time-inp.show{display:block}
 .time-inp:focus{outline:none;border-color:var(--green)}
-
+ 
 /* ITEMS */
 .items-box{background:var(--s1);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:12px;overflow:hidden;margin-bottom:11px}
 .items-head{display:grid;grid-template-columns:1fr 108px 30px;padding:7px 13px;background:var(--s2);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
@@ -109,13 +109,13 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .btn-reg{flex:1;background:var(--amber-dim);color:var(--amber);border:1.5px solid var(--amber);border-radius:11px;padding:13px 8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
 .btn-reg:active{transform:scale(.97);opacity:.8}
 .btn-reset{width:100%;background:none;border:1px solid var(--border);border-radius:9px;padding:8px;color:var(--muted);font-size:11px;font-family:inherit;cursor:pointer;margin-bottom:4px}
-
+ 
 /* TOAST */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--toast-bg);color:var(--toast-text);border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;border:1px solid transparent}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.ok{border-color:var(--green);color:var(--green)}
 .toast.err{border-color:var(--red);color:var(--red)}
-
+ 
 /* DASHBOARD */
 .dash-wrap{padding:14px}
 .dash-filters{background:var(--s1);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:12px;padding:12px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -158,7 +158,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .oi-del{background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:3px;border-radius:5px;opacity:.4;line-height:1;justify-self:center;touch-action:manipulation}
 .oi-del:active{opacity:1;background:rgba(220,38,38,.1)}
 .empty-state{padding:28px;text-align:center;color:var(--muted);font-size:13px}
-
+ 
 /* SYNC */
 .sync-box{background:var(--s1);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:12px;padding:14px;margin-bottom:13px}
 .sync-box h3{font-size:13px;font-weight:700;margin-bottom:11px}
@@ -176,7 +176,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .step-text{font-size:12px;color:var(--muted);line-height:1.6}
 .step-text strong{color:var(--text);font-weight:600}
 .step-code{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--s3);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;color:var(--green);margin-top:6px;white-space:pre-wrap;word-break:break-all;cursor:pointer}
-
+ 
 /* MODAL */
 .modal-ov{display:none;position:fixed;inset:0;background:var(--modal-ov);z-index:200;align-items:flex-end;justify-content:center}
 .modal-ov.open{display:flex}
@@ -203,7 +203,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 </style>
 </head>
 <body>
-
+ 
 <div class="topbar">
   <div class="topbar-logo">● ORDINI</div>
   <div class="topbar-sep">/</div>
@@ -216,13 +216,13 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()"></button>
   </div>
 </div>
-
+ 
 <!-- ORDINE -->
 <div class="screen active" id="screen-order">
   <div class="stabs-wrap"><div class="stabs" id="stabs"></div></div>
   <div class="order-wrap" id="panels"></div>
 </div>
-
+ 
 <!-- DASHBOARD -->
 <div class="screen" id="screen-dash">
   <div class="dash-wrap">
@@ -263,11 +263,11 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
     <div class="orders-list" id="orders-list"></div>
   </div>
 </div>
-
+ 
 <!-- SYNC -->
 <div class="screen" id="screen-sync">
   <div class="dash-wrap">
-
+ 
     <div class="sync-box" style="border-color:var(--amber)">
       <h3>💾 Backup & Ripristino</h3>
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Esporta un backup JSON completo. Importalo su qualsiasi browser o dispositivo per ripristinare tutto.</div>
@@ -279,7 +279,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
       </div>
       <div id="backup-status" style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace"></div>
     </div>
-
+ 
     <div class="sync-box">
       <h3>🔗 Google Sheet</h3>
       <div class="mf">
@@ -293,7 +293,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
       <button class="btn-sync" id="btn-sync-now" onclick="syncToSheet()">↑ SINCRONIZZA ADESSO</button>
       <div class="sync-status" id="sync-status"></div>
     </div>
-
+ 
     <div class="sync-box">
       <h3>📦 Ordini in attesa</h3>
       <div id="pending-list" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.9"></div>
@@ -302,7 +302,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         <button class="btn-reset" onclick="exportJSON()" style="flex:1">⬇ Esporta JSON</button>
       </div>
     </div>
-
+ 
     <div class="steps-box">
       <h3>📋 Come configurare Apps Script</h3>
       <div class="step">
@@ -335,7 +335,7 @@ function doGet(){return ContentService.createTextOutput(JSON.stringify({ok:true,
       <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Distribuisci → Nuova distribuzione</strong><br>Tipo: App Web | Esegui come: Me | Accesso: Chiunque</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-text">Copia l'URL generato, incollalo sopra e premi <strong>Sincronizza</strong>.</div></div>
     </div>
-
+ 
     <div class="sync-box">
       <h3>🔍 Diagnostica</h3>
       <div id="diag-out" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8;margin-bottom:10px"></div>
@@ -344,10 +344,10 @@ function doGet(){return ContentService.createTextOutput(JSON.stringify({ok:true,
         <button class="btn-reset" onclick="forceMigrate()" style="flex:1;color:var(--amber)">⚡ Forza recupero</button>
       </div>
     </div>
-
+ 
   </div>
 </div>
-
+ 
 <!-- MODAL -->
 <div class="modal-ov" id="modal">
   <div class="modal">
@@ -372,7 +372,7 @@ function doGet(){return ContentService.createTextOutput(JSON.stringify({ok:true,
     </div>
   </div>
 </div>
-
+ 
 <!-- MODAL CARICAMENTO MASSIVO -->
 <div class="modal-ov" id="modal-bulk">
   <div class="bulk-modal">
@@ -394,9 +394,9 @@ function doGet(){return ContentService.createTextOutput(JSON.stringify({ok:true,
     </div>
   </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 // ── COSTANTI ─────────────────────────────────────────────
 const KEY_SUP='ordini_suppliers', KEY_ORDERS='ordini_orders';
@@ -414,7 +414,7 @@ const DEFAULTS=[
   {id:'gabriele',name:'Gabriele',phone:'',greet:'Ciao Gabriele per',color:'#b91c1c',
    items:[{name:'FATTI A MANO',qty:500},{name:'CUBI DA 210',qty:5},{name:'FEGATO',qty:150},{name:'POLLO',qty:100},{name:'HAMBURGER',qty:20},{name:'TAGLIATE ROSSE DA 300 GR',qty:10},{name:'TAGLIATE CARNE BIANCA',qty:5}]}
 ];
-
+ 
 // ── STORAGE ──────────────────────────────────────────────
 function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}}
 let _saveTimer;
@@ -423,7 +423,7 @@ function sv(k,v){
   const ind=document.getElementById('save-ind');
   if(ind){ind.style.opacity='1';clearTimeout(_saveTimer);_saveTimer=setTimeout(()=>ind.style.opacity='0',1800)}
 }
-
+ 
 // ── MIGRAZIONE AUTOMATICA ────────────────────────────────
 (function migrate(){
   const tryKeys=(keys,validator,target)=>{
@@ -437,7 +437,7 @@ function sv(k,v){
   tryKeys(['sup_v4','sup_v3','sup_v2'],x=>x?.items,KEY_SUP);
   tryKeys(['orders_v4','orders_v3','orders_v2'],x=>x?.supplier,KEY_ORDERS);
 })();
-
+ 
 // ── STATO ────────────────────────────────────────────────
 let suppliers=ld(KEY_SUP,JSON.parse(JSON.stringify(DEFAULTS)));
 let orders=ld(KEY_ORDERS,[]);
@@ -446,7 +446,7 @@ suppliers.forEach(s=>session[s.id]={day:null,timeOn:false,time:'',note:'',waSent
 let currentTab=suppliers[0]?.id||null;
 let editingId=null;
 let gasUrl=localStorage.getItem('gas_url')||'';
-
+ 
 // ── TEMA ─────────────────────────────────────────────────
 let theme=localStorage.getItem('theme')||'light';
 function applyTheme(){
@@ -456,7 +456,7 @@ function applyTheme(){
 }
 function toggleTheme(){theme=theme==='light'?'dark':'light';localStorage.setItem('theme',theme);applyTheme()}
 applyTheme();
-
+ 
 // ── SCREENS ──────────────────────────────────────────────
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -468,7 +468,7 @@ function showScreen(name){
   if(name==='sync') renderPending();
   if(name==='order') renderOrder();
 }
-
+ 
 // ── RENDER ORDER ─────────────────────────────────────────
 function renderOrder(){renderTabs();renderPanels()}
 function renderTabs(){
@@ -526,14 +526,14 @@ function buildPanel(s){
   <button class="btn-reset" onclick="resetQty('${s.id}')">↺ Ripristina quantità predefinite</button>
 </div>`;
 }
-
+ 
 // ── AZIONI ORDER ─────────────────────────────────────────
 function selTab(id){currentTab=id;renderTabs();renderPanels()}
 function selDay(sid,day){session[sid].day=session[sid].day===day?null:day;renderOrder()}
 function toggleTime(sid,on){session[sid].timeOn=on;document.getElementById('ti_'+sid)?.classList.toggle('show',on);updPv(sid)}
 function upTime(sid,v){session[sid].time=v;updPv(sid)}
 function upNote(sid,v){session[sid].note=v;updPv(sid)}
-
+ 
 function upQty(sid,i,v){
   const s=getSup(sid);if(!s)return;
   s.items[i].qty=Math.max(0,parseFloat(v)||0);
@@ -565,7 +565,7 @@ function resetQty(sid){
 }
 function getSup(id){return suppliers.find(x=>x.id===id)}
 function updPv(sid){const s=getSup(sid);const el=document.getElementById('pv_'+sid);if(s&&el)el.textContent=buildMsg(s)}
-
+ 
 function buildMsg(s){
   const st=session[s.id]||{};
   let m=s.greet||'';
@@ -575,7 +575,7 @@ function buildMsg(s){
   if(st.note)m+='\n\n'+st.note;
   return m+'\n\nGrazie';
 }
-
+ 
 function sendWA(sid){
   const st=session[sid]||{};
   if(!st.day){toast('⚠ Seleziona il giorno di consegna','err');return}
@@ -589,7 +589,7 @@ function sendWA(sid){
   session[sid].waSent=true;
   toast('✓ WhatsApp aperto','ok');
 }
-
+ 
 function regOrder(sid){
   const st=session[sid]||{};
   if(!st.day){toast('⚠ Seleziona il giorno di consegna','err');return}
@@ -608,7 +608,7 @@ function regOrder(sid){
   toast('✓ Ordine registrato!','ok');
   updatePendingBadge();
 }
-
+ 
 function sendAndReg(sid){
   // Prima registra l'ordine
   const st=session[sid]||{};
@@ -635,19 +635,19 @@ function sendAndReg(sid){
   else window.open(`https://web.whatsapp.com/send?${phone?'phone='+phone+'&':''}text=${enc}`,'_blank');
   toast('✓ Ordine registrato e WA aperto','ok');
 }
-
+ 
 function updatePendingBadge(){
   const p=orders.filter(o=>!o.synced).length;
   document.getElementById('nav-sync').innerHTML=p>0?`Sync<span class="pending-badge">${p}</span>`:'Sync';
 }
-
+ 
 // ── DASHBOARD ────────────────────────────────────────────
 function parseDate(s){if(!s)return null;const p=s.split('/');return p.length===3?new Date(+p[2],+p[1]-1,+p[0]):null}
-
+ 
 function getItemQty(order,artName){
   return order.items.filter(it=>it.name===artName).reduce((a,it)=>a+it.qty,0);
 }
-
+ 
 function filterByPeriod(list,period,now,offset=0){
   return list.filter(o=>{
     const d=parseDate(o.date);if(!d)return true;
@@ -657,7 +657,7 @@ function filterByPeriod(list,period,now,offset=0){
     return true;
   });
 }
-
+ 
 function getFilteredOrders(){
   const period=document.getElementById('f-period').value;
   const supF=document.getElementById('f-supplier').value;
@@ -667,10 +667,10 @@ function getFilteredOrders(){
     .filter(o=>supF==='all'||o.supplier===supF)
     .filter(o=>artF==='all'||o.items.some(it=>it.name===artF));
 }
-
+ 
 function onFilterChange(){document.getElementById('f-article').value='all';renderDash()}
 function onSupplierFilterChange(){populateArticleFilter(document.getElementById('f-supplier').value);renderDash()}
-
+ 
 function populateArticleFilter(supF){
   const artSel=document.getElementById('f-article');
   const prev=artSel.value;
@@ -680,21 +680,21 @@ function populateArticleFilter(supF){
   document.getElementById('f-art-group').style.display=supF!=='all'?'flex':'none';
   artSel.value=items.includes(prev)?prev:'all';
 }
-
+ 
 function renderDash(){
   const now=new Date();
   const supF=document.getElementById('f-supplier').value;
   const artF=document.getElementById('f-article').value;
   const period=document.getElementById('f-period').value;
-
+ 
   // Aggiorna dropdown fornitori
   const fSup=document.getElementById('f-supplier');
   const curSup=fSup.value;
   fSup.innerHTML='<option value="all">Tutti</option>'+[...new Set(orders.map(o=>o.supplier))].map(s=>`<option value="${s}">${s}</option>`).join('');
   fSup.value=curSup||'all';
-
+ 
   const filtered=getFilteredOrders();
-
+ 
   // KPI articolo specifico
   const artBox=document.getElementById('kpi-art-box');
   if(artF!=='all'){
@@ -716,7 +716,7 @@ function renderDash(){
   } else {
     artBox.className='kpi-art-box';artBox.innerHTML='';
   }
-
+ 
   // KPI generali
   const totItems=filtered.reduce((a,o)=>a+o.items.reduce((b,i)=>b+i.qty,0),0);
   document.getElementById('kpis').innerHTML=`
@@ -724,16 +724,16 @@ function renderDash(){
     <div class="kpi amber"><div class="kpi-val">${totItems}</div><div class="kpi-lbl">Articoli tot</div></div>
     <div class="kpi blue"><div class="kpi-val">${filtered.filter(o=>o.waSent).length}</div><div class="kpi-lbl">WA inviati</div></div>
     <div class="kpi red"><div class="kpi-val">${new Set(filtered.map(o=>o.supplier)).size}</div><div class="kpi-lbl">Fornitori</div></div>`;
-
+ 
   // Grafico fornitori
   const bySup={};filtered.forEach(o=>{bySup[o.supplier]=(bySup[o.supplier]||0)+1});
   renderBarChart('chart-sup',Object.entries(bySup).map(([l,v])=>({l,v})));
-
+ 
   // Grafico tempo
   const getVal=(list,artName)=>artName!=='all'
     ?list.reduce((a,o)=>a+getItemQty(o,artName),0)
     :list.length;
-
+ 
   let timeData=[];
   if(period==='week'){
     document.getElementById('chart-time-title').textContent='Per giorno (7gg)';
@@ -750,7 +750,7 @@ function renderDash(){
     MESI.forEach((m,i)=>timeData.push({l:m,v:getVal(filtered.filter(o=>{const d=parseDate(o.date);return d&&d.getMonth()===i}),artF)}));
   }
   renderBarChart('chart-time',timeData);
-
+ 
   // Storico
   if(!filtered.length){document.getElementById('orders-list').innerHTML='<div class="empty-state">Nessun ordine nel periodo</div>';return}
   const sorted=[...filtered].sort((a,b)=>b.ts-a.ts);
@@ -765,7 +765,7 @@ function renderDash(){
       <div class="oi-detail" id="det_${o.id}">${o.items.map(it=>`${it.qty}× ${it.name}`).join('\n')}${o.note?'\nNote: '+o.note:''}\nWA: ${o.waSent?'✓':'✗'} | ${o.synced?'✓ Sync':'⏳ Da sync'}</div>`
     ).join('');
 }
-
+ 
 function toggleDetail(id){document.getElementById('det_'+id)?.classList.toggle('show')}
 function deleteOrder(id){orders=orders.filter(o=>o.id!==id);sv(KEY_ORDERS,orders);renderDash();toast('✓ Eliminato','ok')}
 function renderBarChart(elId,data){
@@ -776,7 +776,7 @@ function renderBarChart(elId,data){
     <div class="bar" style="height:${Math.round((d.v/max)*64)+2}px;background:${d.v>0?'var(--green)':'var(--bar-empty)'}"></div>
     <div class="bar-lbl">${d.l}</div></div>`).join('');
 }
-
+ 
 // ── SYNC ─────────────────────────────────────────────────
 function saveGasUrl(){gasUrl=document.getElementById('gas-url').value;localStorage.setItem('gas_url',gasUrl)}
 function saveGasEmail(){localStorage.setItem('gas_email',document.getElementById('gas-email').value)}
@@ -820,7 +820,7 @@ function copyGas(el){
     .then(()=>toast('✓ Codice copiato','ok'))
     .catch(()=>{const t=document.createElement('textarea');t.value=el.textContent.trim();document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast('✓ Copiato','ok')});
 }
-
+ 
 // ── BACKUP ───────────────────────────────────────────────
 function exportBackup(){
   const b={version:1,exported:new Date().toISOString(),suppliers,orders,theme,gasUrl,gasEmail:localStorage.getItem('gas_email')||''};
@@ -854,7 +854,7 @@ function importBackup(input){
   };
   reader.readAsText(file);
 }
-
+ 
 // ── DIAGNOSTICA ──────────────────────────────────────────
 function runDiag(){
   try{
@@ -893,7 +893,7 @@ function forceMigrate(){
   toast(msgs.length?'✓ '+msgs.join(' | '):'Nessun dato recuperabile',msgs.length?'ok':'err');
   runDiag();
 }
-
+ 
 // ── MODAL ────────────────────────────────────────────────
 function openNew(){
   editingId=null;
@@ -929,7 +929,7 @@ function saveModal(){
   sv(KEY_SUP,suppliers);closeModal();renderOrder();
 }
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
-
+ 
 // ── CONTACT PICKER ───────────────────────────────────────
 async function pickContact(){
   const note=document.getElementById('contact-note');
@@ -964,7 +964,7 @@ function initContactPicker(){
   btn.style.opacity=sup?'1':'0.4';
   btn.title=sup?'Scegli dalla rubrica':'Rubrica non supportata (Android Chrome)';
 }
-
+ 
 // ── TOAST ────────────────────────────────────────────────
 let _toastTimer;
 function toast(msg,type='ok'){
@@ -972,7 +972,7 @@ function toast(msg,type='ok'){
   el.textContent=msg;el.className=`toast ${type} show`;
   clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.classList.remove('show'),2400);
 }
-
+ 
 // ── PWA ──────────────────────────────────────────────────
 function initPWA(){
   const icon='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%2300a854"/><text y=".9em" font-size="72" x="12">🛒</text></svg>';
@@ -988,7 +988,7 @@ function initPWA(){
   const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
   document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
   document.getElementById('apple-icon').href=icon;
-
+ 
   // Service Worker inline per cache offline
   if('serviceWorker' in navigator){
     const sw=`
@@ -1001,7 +1001,7 @@ self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r
     navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
   }
 }
-
+ 
 // ── BULK IMPORT ─────────────────────────────────────────
 let _bulkSid=null;
 function openBulk(sid){
@@ -1013,7 +1013,7 @@ function openBulk(sid){
 }
 function closeBulk(){document.getElementById('modal-bulk').classList.remove('open');_bulkSid=null}
 document.getElementById('modal-bulk').addEventListener('click',e=>{if(e.target===e.currentTarget)closeBulk()});
-
+ 
 function parseBulkText(raw){
   return raw.split('
 ')
@@ -1031,7 +1031,7 @@ function parseBulkText(raw){
     })
     .filter(it=>it.name.length>0);
 }
-
+ 
 function previewBulk(){
   const raw=document.getElementById('bulk-text').value;
   const items=parseBulkText(raw);
@@ -1041,7 +1041,7 @@ function previewBulk(){
   prev.innerHTML='<strong style="color:var(--text)">'+items.length+' prodotti rilevati:</strong><br>'+
     items.map(it=>`${it.qty}× ${it.name}`).join('<br>');
 }
-
+ 
 function loadBulkFile(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
@@ -1052,7 +1052,7 @@ function loadBulkFile(input){
   reader.readAsText(file);
   input.value='';
 }
-
+ 
 function confirmBulk(){
   if(!_bulkSid) return;
   const raw=document.getElementById('bulk-text').value;
@@ -1070,7 +1070,7 @@ function confirmBulk(){
   renderOrder();
   toast('✓ '+newItems.length+' prodotti aggiunti','ok');
 }
-
+ 
 // ── INIT ─────────────────────────────────────────────────
 renderOrder();
 updatePendingBadge();
