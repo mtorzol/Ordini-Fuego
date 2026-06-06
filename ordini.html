@@ -488,7 +488,7 @@ function buildPanel(s){
     <div class="sup-ava" style="background:${s.color}20;color:${s.color}">${s.name.substring(0,2).toUpperCase()}</div>
     <div>
       <div class="sup-name">${s.name}</div>
-      ${s.company?`<div class="sup-company">${s.company}</div>`:''}
+      ${s.company?'<div class="sup-company">'+s.company+'</div>':''}
       <div class="sup-phone">${s.phone||'Nessun numero'}</div>
     </div>
     <button class="sup-edit" onclick="openEdit('${s.id}')">✎ Modifica</button>
@@ -928,7 +928,7 @@ function saveModal(){
   }
   sv(KEY_SUP,suppliers);closeModal();renderOrder();
 }
-document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+// modal listener moved to init
 
 // ── CONTACT PICKER ───────────────────────────────────────
 async function pickContact(){
@@ -1012,7 +1012,7 @@ function openBulk(sid){
   document.getElementById('modal-bulk').classList.add('open');
 }
 function closeBulk(){document.getElementById('modal-bulk').classList.remove('open');_bulkSid=null}
-document.getElementById('modal-bulk').addEventListener('click',e=>{if(e.target===e.currentTarget)closeBulk()});
+// bulk listener moved to init
 
 function parseBulkText(raw){
   return raw.split('
@@ -1072,6 +1072,8 @@ function confirmBulk(){
 }
 
 // ── INIT ─────────────────────────────────────────────────
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.getElementById('modal-bulk').addEventListener('click',e=>{if(e.target===e.currentTarget)closeBulk()});
 renderOrder();
 updatePendingBadge();
 initContactPicker();
