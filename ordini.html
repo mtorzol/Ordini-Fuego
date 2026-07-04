@@ -179,6 +179,29 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .bulk-textarea:focus{outline:none;border-color:var(--green)}
 .bulk-preview{background:var(--s3);border-radius:8px;padding:10px 13px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);max-height:120px;overflow-y:auto;margin-bottom:12px;display:none;line-height:1.8}
 .bulk-preview.show{display:block}
+/* Ricerca articoli */
+.search-box{position:relative;margin-bottom:8px}
+.search-inp{width:100%;background:var(--s1);border:1.5px solid var(--border2);border-radius:9px;padding:9px 13px 9px 34px;color:var(--text);font-size:13px;font-family:inherit}
+.search-inp:focus{outline:none;border-color:var(--green)}
+.search-inp::placeholder{color:var(--muted2)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+.search-results{background:var(--s1);border:1px solid var(--border2);border-radius:9px;overflow:hidden;margin-bottom:8px;display:none}
+.search-results.show{display:block}
+.search-result-item{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--border);cursor:pointer;gap:8px}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:active{background:var(--s2)}
+.sri-name{font-size:13px;font-weight:600;flex:1}
+.sri-qty{display:flex;align-items:center;gap:5px}
+.sri-qty-inp{width:48px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;text-align:center;-moz-appearance:textfield}
+.sri-qty-inp::-webkit-outer-spin-button,.sri-qty-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.sri-qty-inp:focus{outline:none;border-color:var(--green)}
+/* Ordinamento e blocco delete */
+.items-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sort-btn{background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 9px;font-size:10px;color:var(--muted);font-family:inherit;cursor:pointer;font-weight:600;letter-spacing:.3px}
+.sort-btn.active{border-color:var(--green);color:var(--green);background:var(--green-glow)}
+.del-blocked{background:none;border:none;color:var(--muted2);font-size:14px;cursor:default;padding:4px;border-radius:5px;opacity:.3;line-height:1}
+/* Ultimo ordine */
+.btn-last-order{width:100%;background:none;border:1px solid var(--blue);border-radius:9px;padding:8px;color:var(--blue);font-size:11px;font-family:inherit;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:5px}
 </style>
 </head>
 <body>
@@ -481,7 +504,7 @@ function buildPanel(s){
         +'<input class="item-q" type="number" min="0" value="'+it.qty+'" oninput="upQty(\''+s.id+'\','+i+',this.value)">'
         +'<button class="qty-step plus" ontouchstart="" onclick="stepQty(\''+s.id+'\','+i+',1)">+</button>'
       +'</div>'
-      +'<button class="del" onclick="delItem(\''+s.id+'\','+i+')">&#10005;</button>'
+      +(isItemUsed(s.items[i].name)?'<button class="del-blocked" title="Usato in ordini esistenti">&#128274;</button>':'<button class="del" onclick="delItem(\''+s.id+'\','+i+')">&#10005;</button>')
     +'</div>';
   }
   var WA_SVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.524 5.848L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.359-.214-3.727.978.995-3.629-.233-.374A9.771 9.771 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>';
@@ -501,12 +524,12 @@ function buildPanel(s){
       +'<label class="time-chk"><input type="checkbox" '+(st.timeOn?'checked':'')+' onchange="toggleTime(\''+s.id+'\',this.checked)"> Specifica orario</label>'
       +'<input class="time-inp'+(st.timeOn?' show':'')+'" type="time" id="ti_'+s.id+'" value="'+(st.time||'')+'" oninput="upTime(\''+s.id+'\',this.value)">'
     +'</div>'
-    +'<div class="sec-label">Articoli</div>'
+    +'<div class="items-toolbar"><div class="sec-label" style="margin-bottom:0">Articoli</div><button class="sort-btn" id="sortbtn_'+s.id+'" onclick="toggleSort(\''+s.id+'\')">A&#8239;→&#8239;Z</button></div>'
     +'<div class="items-box">'
       +'<div class="items-head"><span>Prodotto</span><span style="text-align:center">Qt&agrave;</span><span></span></div>'
       +items
     +'</div>'
-    +'<div class="add-row">'
+    +'<div class="search-box"><span class="search-icon">&#128269;</span><input class="search-inp" type="text" placeholder="Cerca articolo..." id="srch_'+s.id+'" oninput="searchItems(\''+s.id+'\',this.value)"></div>'+'<div class="search-results" id="sres_'+s.id+'"></div>'+'<button class="btn-last-order" onclick="loadLastOrder(\''+s.id+'\')">&#8635; Ricarica ultimo ordine</button>'+'<div class="add-row">'
       +'<input class="add-inp" type="text" placeholder="Aggiungi prodotto..." id="ai_'+s.id+'" onkeydown="if(event.key===\'Enter\')addItem(\''+s.id+'\')">'
       +'<button class="add-btn" onclick="addItem(\''+s.id+'\')">&#65291;</button>'
     +'</div>'
@@ -558,6 +581,13 @@ function renameItem(sid,i,val){
 }
 function delItem(sid,i){
   var s=getSup(sid);if(!s)return;
+  var artName=s.items[i].name;
+  // Controlla se l'articolo è già stato usato in ordini
+  var usedIn=orders.filter(function(o){return o.items.some(function(it){return it.name===artName})});
+  if(usedIn.length>0){
+    toast('⚠ "'+artName+'" usato in '+usedIn.length+' ordine/i — non eliminabile','err');
+    return;
+  }
   s.items.splice(i,1);sv(KEY_SUP,suppliers);renderOrder();
 }
 function addItem(sid){
@@ -975,6 +1005,103 @@ function confirmBulk(){
   });
   sv(KEY_SUP,suppliers);closeBulkModal();renderOrder();
   toast('\u2713 '+newItems.length+' prodotti aggiunti','ok');
+}
+
+// ORDINAMENTO
+var sortState={};
+function toggleSort(sid){
+  sortState[sid]=!sortState[sid];
+  var s=getSup(sid);if(!s)return;
+  if(sortState[sid]){
+    s.items.sort(function(a,b){return a.name.localeCompare(b.name)});
+  } else {
+    // Ripristina ordine originale dai defaults
+    var d=null;for(var j=0;j<DEFAULTS.length;j++){if(DEFAULTS[j].id===sid){d=DEFAULTS[j];break}}
+    if(d){
+      var defOrder={};d.items.forEach(function(it,k){defOrder[it.name]=k});
+      s.items.sort(function(a,b){
+        var ia=defOrder[a.name]!==undefined?defOrder[a.name]:999;
+        var ib=defOrder[b.name]!==undefined?defOrder[b.name]:999;
+        return ia-ib;
+      });
+    }
+  }
+  sv(KEY_SUP,suppliers);
+  renderOrder();
+  // Aggiorna stato bottone dopo render
+  setTimeout(function(){
+    var btn=document.getElementById('sortbtn_'+sid);
+    if(btn)btn.classList.toggle('active',!!sortState[sid]);
+  },10);
+}
+
+// CHECK ARTICOLO USATO IN ORDINI
+function isItemUsed(artName){
+  for(var i=0;i<orders.length;i++){
+    for(var j=0;j<orders[i].items.length;j++){
+      if(orders[i].items[j].name===artName)return true;
+    }
+  }
+  return false;
+}
+
+// RICERCA ARTICOLI
+function searchItems(sid,q){
+  var resBox=document.getElementById('sres_'+sid);
+  if(!resBox)return;
+  if(!q.trim()){resBox.className='search-results';resBox.innerHTML='';return}
+  var s=getSup(sid);if(!s)return;
+  var q2=q.trim().toUpperCase();
+  var matches=s.items.filter(function(it){return it.name.indexOf(q2)>=0});
+  if(!matches.length){resBox.className='search-results';resBox.innerHTML='';return}
+  var html='';
+  matches.forEach(function(it,idx){
+    var realIdx=s.items.indexOf(it);
+    html+='<div class="search-result-item">'
+      +'<div class="sri-name">'+it.name+'</div>'
+      +'<div class="sri-qty">'
+        +'<input class="sri-qty-inp" type="number" min="0" value="'+it.qty+'" id="sriqty_'+sid+'_'+realIdx+'">'
+        +'<button class="qty-step plus" style="width:24px;height:24px;font-size:14px" ontouchstart="" onclick="applySriQty(\''+sid+'\','+realIdx+')">&#10003;</button>'
+      +'</div>'
+    +'</div>';
+  });
+  resBox.className='search-results show';
+  resBox.innerHTML=html;
+}
+function applySriQty(sid,idx){
+  var inp=document.getElementById('sriqty_'+sid+'_'+idx);
+  if(!inp)return;
+  var val=Math.max(0,parseFloat(inp.value)||0);
+  var s=getSup(sid);if(!s)return;
+  s.items[idx].qty=val;
+  sv(KEY_SUP,suppliers);
+  updPv(sid);
+  toast('✓ '+s.items[idx].name+': qtà aggiornata a '+val,'ok');
+}
+
+// RICARICA ULTIMO ORDINE
+function loadLastOrder(sid){
+  var s=getSup(sid);if(!s)return;
+  // Trova l'ultimo ordine per questo fornitore
+  var supOrders=orders.filter(function(o){return o.supplier===s.name});
+  if(!supOrders.length){toast('⚠ Nessun ordine precedente per '+s.name,'err');return}
+  supOrders.sort(function(a,b){return b.ts-a.ts});
+  var last=supOrders[0];
+  // Ripristina quantità degli articoli dell'ultimo ordine
+  last.items.forEach(function(li){
+    var found=null;
+    for(var i=0;i<s.items.length;i++){if(s.items[i].name===li.name){found=s.items[i];break}}
+    if(found)found.qty=li.qty;
+    else s.items.push({name:li.name,qty:li.qty});
+  });
+  // Ripristina giorno e note
+  if(session[sid]){
+    session[sid].day=last.deliveryDay||null;
+    session[sid].note=last.note||'';
+  }
+  sv(KEY_SUP,suppliers);
+  renderOrder();
+  toast('✓ Ultimo ordine del '+last.date+' ripristinato','ok');
 }
 
 // TOAST
