@@ -379,6 +379,57 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .stor-table tr:last-child td{border-bottom:none}
 .stor-table td:first-child{font-family:inherit;font-weight:600;color:var(--text)}
 .stor-btn{background:none;border:1px solid var(--blue);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--blue);cursor:pointer;font-family:inherit;font-weight:600;margin-bottom:10px}
+
+/* ANALISI CONSUNTIVA */
+.cons-wrap{padding:14px;padding-bottom:80px}
+.cons-section{background:var(--s1);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:12px;padding:14px;margin-bottom:13px}
+.cons-section-title{font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;color:var(--text)}
+.cons-kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.cons-kpi{background:var(--s1);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:11px;padding:12px 8px;text-align:center}
+.cons-kpi-val{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.cons-kpi-sub{font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;letter-spacing:.5px}
+.cons-kpi.green .cons-kpi-val{color:var(--green)}
+.cons-kpi.amber .cons-kpi-val{color:var(--amber)}
+.cons-kpi.blue  .cons-kpi-val{color:var(--blue)}
+.cons-kpi.red   .cons-kpi-val{color:var(--red)}
+.cons-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:12px}
+.cons-filter-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:90px}
+.cons-filter-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cons-sel{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;cursor:pointer;width:100%}
+.cons-sel:focus{outline:none;border-color:var(--green)}
+/* Grafico barre avanzato */
+.cons-chart{margin-bottom:14px}
+.cons-chart-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700}
+.cons-bars{display:flex;align-items:flex-end;gap:4px;height:100px;padding-bottom:18px;position:relative}
+.cons-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
+.cons-bar-inner{width:100%;border-radius:4px 4px 0 0;transition:all .3s ease;position:relative}
+.cons-bar-col:active .cons-bar-inner{opacity:.7}
+.cons-bar-lbl{font-size:9px;color:var(--muted);margin-top:3px;text-align:center;position:absolute;bottom:-16px;width:100%}
+.cons-bar-val{font-size:8px;font-weight:700;color:var(--text);text-align:center;margin-bottom:2px;white-space:nowrap}
+/* Tabella mensile */
+.cons-table{width:100%;border-collapse:collapse;font-size:11px}
+.cons-table th{background:var(--s2);padding:7px 8px;text-align:center;font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+.cons-table th:first-child{text-align:left}
+.cons-table td{padding:8px;border-bottom:1px solid var(--border);text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px}
+.cons-table td:first-child{text-align:left;font-family:inherit;font-weight:700;color:var(--text)}
+.cons-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--s2)}
+.cons-table .best{color:var(--green);font-weight:700}
+/* Giorno settimana card */
+.cons-dow-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cons-dow-card{background:var(--s2);border-radius:9px;padding:10px;position:relative;overflow:hidden}
+.cons-dow-card-name{font-size:12px;font-weight:700;margin-bottom:6px}
+.cons-dow-stat{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}
+.cons-dow-stat strong{color:var(--text);font-family:'JetBrains Mono',monospace}
+.cons-dow-bar{height:3px;border-radius:2px;background:var(--green);margin-top:6px;transition:width .4s}
+/* Record card */
+.cons-record{background:linear-gradient(135deg,var(--amber-dim),transparent);border:1.5px solid var(--amber);border-radius:11px;padding:13px;margin-bottom:8px}
+.cons-record-date{font-size:11px;color:var(--amber);font-weight:700;margin-bottom:4px}
+.cons-record-val{font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.cons-record-sub{font-size:11px;color:var(--muted);margin-top:3px}
+/* Trend indicator */
+.trend-up{color:var(--green)}.trend-dn{color:var(--red)}.trend-eq{color:var(--muted)}
+.cons-no-data{text-align:center;padding:32px;color:var(--muted);font-size:13px;line-height:1.8}
+
 </style>
 </head>
 <body>
@@ -399,6 +450,10 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
   <button class="bnav-btn" id="nav-dash" onclick="showScreen('dash')">
     <div class="bnav-icon">&#128200;</div>
     <div class="bnav-label">Dashboard</div>
+  </button>
+  <button class="bnav-btn" id="nav-cons" onclick="showScreen('cons')">
+    <div class="bnav-icon">&#128202;</div>
+    <div class="bnav-label">Consuntivi</div>
   </button>
   <button class="bnav-btn" id="nav-prev" onclick="showScreen('prev')">
     <div class="bnav-icon">&#127919;</div>
@@ -553,6 +608,79 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         </table>
       </div>
       <button class="prev-btn secondary" onclick="resetCoefficienti()" style="margin-top:10px;font-size:11px">&#8635; Ripristina coefficienti default</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- CONSUNTIVI -->
+<div class="screen" id="screen-cons">
+  <div class="cons-wrap">
+
+    <!-- FILTRI -->
+    <div class="cons-filters">
+      <div class="cons-filter-group">
+        <div class="cons-filter-label">Anno</div>
+        <select class="cons-sel" id="cons-anno" onchange="renderCons()"></select>
+      </div>
+      <div class="cons-filter-group">
+        <div class="cons-filter-label">Mese</div>
+        <select class="cons-sel" id="cons-mese" onchange="renderCons()">
+          <option value="all">Tutti</option>
+        </select>
+      </div>
+      <div class="cons-filter-group">
+        <div class="cons-filter-label">Visualizza</div>
+        <select class="cons-sel" id="cons-metric" onchange="renderCons()">
+          <option value="coperti">Coperti</option>
+          <option value="arrosticini">Arrosticini</option>
+          <option value="arr_cop">Arr/Coperto</option>
+          <option value="pizze">Pizze</option>
+          <option value="hamburger">Hamburger</option>
+          <option value="tagliateR">Tagliate R.</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KPI PRINCIPALI -->
+    <div class="cons-kpis" id="cons-kpis"></div>
+
+    <!-- RECORD -->
+    <div id="cons-record-box"></div>
+
+    <!-- GRAFICO ANDAMENTO -->
+    <div class="cons-section">
+      <div class="cons-chart-title" id="cons-chart-main-title">Andamento mensile</div>
+      <div class="cons-bars" id="cons-chart-main"></div>
+    </div>
+
+    <!-- GRAFICO PER GIORNO SETTIMANA -->
+    <div class="cons-section">
+      <div class="cons-chart-title">Media per giorno della settimana</div>
+      <div class="cons-bars" id="cons-chart-dow"></div>
+    </div>
+
+    <!-- TABELLA MENSILE -->
+    <div class="cons-section">
+      <div class="cons-section-title">&#128203; Riepilogo mensile</div>
+      <div style="overflow-x:auto">
+        <table class="cons-table" id="cons-table-mensile"></table>
+      </div>
+    </div>
+
+    <!-- ANALISI PER GIORNO SETTIMANA -->
+    <div class="cons-section">
+      <div class="cons-section-title">&#128197; Performance per giorno</div>
+      <div class="cons-dow-grid" id="cons-dow-cards"></div>
+    </div>
+
+    <!-- TOP 10 GIORNATE -->
+    <div class="cons-section">
+      <div class="cons-section-title">&#127942; Top 10 giornate</div>
+      <div style="overflow-x:auto">
+        <table class="cons-table" id="cons-top10"></table>
+      </div>
     </div>
 
   </div>
@@ -835,12 +963,13 @@ function showScreen(name){
   document.getElementById('screen-'+name).classList.add('active');
   var bnavBtn=document.getElementById('nav-'+name);
   if(bnavBtn) bnavBtn.classList.add('active');
-  var titles={order:'Nuovo ordine',dash:'Dashboard',prev:'Previsioni',sync:'Sync & Impostazioni'};
+  var titles={order:'Nuovo ordine',dash:'Dashboard',cons:'Analisi Consuntiva',prev:'Previsioni',sync:'Sync & Impostazioni'};
   document.getElementById('screen-title').textContent=titles[name]||name;
   if(name==='dash') renderDash();
   if(name==='sync') renderPending();
   if(name==='order') renderOrder();
   if(name==='prev') initPrev();
+  if(name==='cons') initCons();
   // Scroll top
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2034,7 +2163,7 @@ function caricaStorico(input){
         var tagR    = parseFloat(rec['tagliate rosse'] || rec['tagliater'] || rec['tagliaterosse'] || rec['tagr'] || 0) || 0;
         var tagB    = parseFloat(rec['tagliate bianche'] || rec['tagliatebianche'] || rec['tagb'] || 0) || 0;
 
-        if(!data || !coperti) continue;
+        if(!data) continue; // Mantieni giorni con coperti=0 (chiusi)
 
         // Normalizza data
         var dataObj = new Date(data);
@@ -2437,6 +2566,242 @@ function eliminaFornitore(){
   if(currentTab===editingId)currentTab=suppliers[0]?suppliers[0].id:null;
   closeSupModal();renderOrder();
   toast('\u2713 Fornitore eliminato','ok');
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// MODULO ANALISI CONSUNTIVA
+// ═══════════════════════════════════════════════════════════════════
+var MESI_CONS=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+               'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+var GIORNI_CONS=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+var METRIC_LABELS={coperti:'Coperti',arrosticini:'Arrosticini',arr_cop:'Arr/Coperto',
+                   pizze:'Pizze',hamburger:'Hamburger',tagliateR:'Tagliate R.'};
+
+function initCons(){
+  var annoEl=document.getElementById('cons-anno');
+  var meseEl=document.getElementById('cons-mese');
+  // Popola anni disponibili dallo storico
+  if(annoEl){
+    var curAnno=annoEl.value;
+    var anni=[...new Set(storico.map(function(s){return s.data?s.data.substring(0,4):null}).filter(Boolean))].sort().reverse();
+    if(!anni.length) anni=[new Date().getFullYear().toString()];
+    annoEl.innerHTML=anni.map(function(a){return'<option value="'+a+'">'+a+'</option>'}).join('');
+    if(curAnno&&anni.indexOf(curAnno)>=0) annoEl.value=curAnno;
+  }
+  if(meseEl&&meseEl.options.length<2){
+    MESI_CONS.forEach(function(m,i){
+      var opt=document.createElement('option');opt.value=i+1;opt.textContent=m;meseEl.appendChild(opt);
+    });
+  }
+  renderCons();
+}
+
+function getConsData(){
+  var anno=document.getElementById('cons-anno')?document.getElementById('cons-anno').value:'';
+  var mese=document.getElementById('cons-mese')?document.getElementById('cons-mese').value:'all';
+  return storico.filter(function(s){
+    if(!s.data)return false;
+    if(anno&&s.data.substring(0,4)!==anno)return false;
+    if(mese!=='all'&&parseInt(s.data.substring(5,7))!==parseInt(mese))return false;
+    return true;
+  });
+}
+
+function getMetricVal(s,metric){
+  if(metric==='arr_cop') return s.coperti>0?Math.round((s.arrosticini/s.coperti)*100)/100:0;
+  return s[metric]||0;
+}
+
+function renderCons(){
+  var data=getConsData();
+  var metric=document.getElementById('cons-metric')?document.getElementById('cons-metric').value:'coperti';
+  var mese=document.getElementById('cons-mese')?document.getElementById('cons-mese').value:'all';
+  var metricLabel=METRIC_LABELS[metric]||metric;
+
+  if(!storico.length){
+    var noData='<div class="cons-no-data">&#128202;<br><strong>Nessun dato storico caricato</strong><br>Vai in <strong>Previsioni → Storico vendite</strong> e carica il file CSV per visualizzare le analisi.</div>';
+    ['cons-kpis','cons-record-box','cons-chart-main','cons-chart-dow','cons-table-mensile','cons-dow-cards','cons-top10'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.innerHTML=id==='cons-kpis'?noData:'';
+    });
+    return;
+  }
+
+  // ── KPI PRINCIPALI ──
+  var aperti=data.filter(function(s){return s.coperti>0});
+  var totCop=data.reduce(function(a,s){return a+(s.coperti||0)},0);
+  var totArr=data.reduce(function(a,s){return a+(s.arrosticini||0)},0);
+  var totPiz=data.reduce(function(a,s){return a+(s.pizze||0)},0);
+  var totHam=data.reduce(function(a,s){return a+(s.hamburger||0)},0);
+  var totTagR=data.reduce(function(a,s){return a+(s.tagliateR||0)},0);
+  var mediaArrCop=totCop>0?Math.round((totArr/totCop)*100)/100:0;
+  var mediaCopGg=aperti.length>0?Math.round(totCop/aperti.length):0;
+
+  var kpisEl=document.getElementById('cons-kpis');
+  if(kpisEl) kpisEl.innerHTML=
+    '<div class="cons-kpi green"><div class="cons-kpi-val">'+totCop.toLocaleString('it-IT')+'</div><div class="cons-kpi-sub">Coperti</div></div>'+
+    '<div class="cons-kpi amber"><div class="cons-kpi-val">'+totArr.toLocaleString('it-IT')+'</div><div class="cons-kpi-sub">Arrosticini</div></div>'+
+    '<div class="cons-kpi blue"><div class="cons-kpi-val">'+mediaArrCop+'</div><div class="cons-kpi-sub">Arr/Cop</div></div>'+
+    '<div class="cons-kpi green"><div class="cons-kpi-val">'+totPiz.toLocaleString('it-IT')+'</div><div class="cons-kpi-sub">Pizze</div></div>'+
+    '<div class="cons-kpi amber"><div class="cons-kpi-val">'+totHam.toLocaleString('it-IT')+'</div><div class="cons-kpi-sub">Hamburger</div></div>'+
+    '<div class="cons-kpi red"><div class="cons-kpi-val">'+totTagR.toLocaleString('it-IT')+'</div><div class="cons-kpi-sub">Tag. Rosse</div></div>';
+
+  // ── RECORD ──
+  var recEl=document.getElementById('cons-record-box');
+  if(recEl&&aperti.length){
+    var best=aperti.reduce(function(a,b){return(b.coperti||0)>(a.coperti||0)?b:a},aperti[0]);
+    var bestMetric=aperti.reduce(function(a,b){return getMetricVal(b,metric)>getMetricVal(a,metric)?b:a},aperti[0]);
+    recEl.innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px">'+
+      '<div class="cons-record"><div class="cons-record-date">&#127942; Record coperti</div>'+
+        '<div class="cons-record-val">'+best.coperti+'</div>'+
+        '<div class="cons-record-sub">'+formatDate(best.data)+' — '+best.arrosticini+' arrosticini</div></div>'+
+      '<div class="cons-record"><div class="cons-record-date">&#128293; Miglior '+metricLabel+'</div>'+
+        '<div class="cons-record-val">'+getMetricVal(bestMetric,metric)+'</div>'+
+        '<div class="cons-record-sub">'+formatDate(bestMetric.data)+'</div></div>'+
+      '</div>';
+  }
+
+  // ── GRAFICO PRINCIPALE ──
+  var chartTitle=document.getElementById('cons-chart-main-title');
+  if(chartTitle) chartTitle.textContent=(mese==='all'?'Andamento mensile':'Andamento giornaliero')+' — '+metricLabel;
+
+  if(mese==='all'){
+    // Raggruppa per mese
+    var byMonth={};
+    data.forEach(function(s){
+      var m=parseInt(s.data.substring(5,7));
+      if(!byMonth[m])byMonth[m]={label:MESI_CONS[m-1].substring(0,3),val:0,n:0};
+      byMonth[m].val+=getMetricVal(s,metric);
+      byMonth[m].n++;
+    });
+    renderConsChart('cons-chart-main',Object.keys(byMonth).sort().map(function(m){return{l:byMonth[m].label,v:metric==='arr_cop'&&byMonth[m].n>0?Math.round(byMonth[m].val/byMonth[m].n*100)/100:byMonth[m].val}}),metric);
+  } else {
+    // Raggruppa per settimana del mese
+    var byWeek={};
+    data.forEach(function(s){
+      var day=parseInt(s.data.substring(8,10));
+      var w=Math.ceil(day/7);
+      if(!byWeek[w])byWeek[w]={label:'Sett.'+w,val:0,n:0};
+      byWeek[w].val+=getMetricVal(s,metric);
+      byWeek[w].n++;
+    });
+    renderConsChart('cons-chart-main',Object.keys(byWeek).sort(function(a,b){return a-b}).map(function(w){return{l:byWeek[w].label,v:metric==='arr_cop'&&byWeek[w].n>0?Math.round(byWeek[w].val/byWeek[w].n*100)/100:byWeek[w].val}}),metric);
+  }
+
+  // ── GRAFICO PER GIORNO SETTIMANA ──
+  var byDow={};
+  aperti.forEach(function(s){
+    var dw=(new Date(s.data+'T12:00:00').getDay()+6)%7; // 0=lun
+    if(!byDow[dw])byDow[dw]={val:0,cop:0,arr:0,n:0};
+    byDow[dw].val+=getMetricVal(s,metric);
+    byDow[dw].cop+=s.coperti||0;
+    byDow[dw].arr+=s.arrosticini||0;
+    byDow[dw].n++;
+  });
+  var dowChartData=[0,1,2,3,4,5,6].filter(function(i){return byDow[i]&&byDow[i].n>0}).map(function(i){
+    var d=byDow[i];
+    return{l:GIORNI_CONS[i].substring(0,3),v:metric==='arr_cop'&&d.n>0?Math.round(d.val/d.n*100)/100:d.n>0?Math.round(d.val/d.n):0};
+  });
+  renderConsChart('cons-chart-dow',dowChartData,metric);
+
+  // ── TABELLA MENSILE ──
+  var tblEl=document.getElementById('cons-table-mensile');
+  if(tblEl){
+    var totRig={coperti:0,arrosticini:0,pizze:0,hamburger:0,tagliateR:0,gg:0};
+    var byM={};
+    data.forEach(function(s){
+      var m=parseInt(s.data.substring(5,7));
+      if(!byM[m])byM[m]={nome:MESI_CONS[m-1],coperti:0,arrosticini:0,pizze:0,hamburger:0,tagliateR:0,gg:0};
+      if(s.coperti>0)byM[m].gg++;
+      byM[m].coperti+=s.coperti||0;byM[m].arrosticini+=s.arrosticini||0;
+      byM[m].pizze+=s.pizze||0;byM[m].hamburger+=s.hamburger||0;byM[m].tagliateR+=s.tagliateR||0;
+      totRig.coperti+=s.coperti||0;totRig.arrosticini+=s.arrosticini||0;
+      totRig.pizze+=s.pizze||0;totRig.hamburger+=s.hamburger||0;totRig.tagliateR+=s.tagliateR||0;
+      if(s.coperti>0)totRig.gg++;
+    });
+    var maxCop=Math.max.apply(null,Object.values(byM).map(function(m){return m.coperti}));
+    var html='<thead><tr><th>Mese</th><th>Gg</th><th>Coperti</th><th>Arrost.</th><th>Arr/Cop</th><th>Pizze</th><th>Hamb.</th><th>Tag.R</th></tr></thead><tbody>';
+    Object.keys(byM).sort(function(a,b){return a-b}).forEach(function(m){
+      var bm=byM[m];
+      var ac=bm.coperti>0?Math.round(bm.arrosticini/bm.coperti*100)/100:0;
+      var isBest=bm.coperti===maxCop;
+      html+='<tr>'
+        +'<td>'+bm.nome+'</td><td>'+bm.gg+'</td>'
+        +'<td class="'+(isBest?'best':'')+'">'+bm.coperti.toLocaleString('it-IT')+'</td>'
+        +'<td>'+bm.arrosticini.toLocaleString('it-IT')+'</td>'
+        +'<td>'+ac+'</td>'
+        +'<td>'+bm.pizze+'</td><td>'+bm.hamburger+'</td><td>'+bm.tagliateR+'</td>'
+      +'</tr>';
+    });
+    var acTot=totRig.coperti>0?Math.round(totRig.arrosticini/totRig.coperti*100)/100:0;
+    html+='<tr><td>TOTALE</td><td>'+totRig.gg+'</td><td>'+totRig.coperti.toLocaleString('it-IT')+'</td><td>'+totRig.arrosticini.toLocaleString('it-IT')+'</td><td>'+acTot+'</td><td>'+totRig.pizze+'</td><td>'+totRig.hamburger+'</td><td>'+totRig.tagliateR+'</td></tr>';
+    html+='</tbody>';
+    tblEl.innerHTML=html;
+  }
+
+  // ── CARDS GIORNO SETTIMANA ──
+  var dowEl=document.getElementById('cons-dow-cards');
+  if(dowEl){
+    var maxDowCop=Math.max.apply(null,[0,1,2,3,4,5,6].map(function(i){return byDow[i]?Math.round((byDow[i].cop||0)/(byDow[i].n||1)):0}));
+    var html='';
+    [0,1,2,3,4,5,6].forEach(function(i){
+      var d=byDow[i];if(!d||!d.n)return;
+      var mediaCop=Math.round(d.cop/d.n);
+      var mediaArr=Math.round(d.arr/d.n);
+      var ac=d.cop>0?Math.round(d.arr/d.cop*100)/100:0;
+      var barW=maxDowCop>0?Math.round((mediaCop/maxDowCop)*100):0;
+      html+='<div class="cons-dow-card">'
+        +'<div class="cons-dow-card-name">'+GIORNI_CONS[i]+'</div>'
+        +'<div class="cons-dow-stat"><span>Media cop.</span><strong>'+mediaCop+'</strong></div>'
+        +'<div class="cons-dow-stat"><span>Media arr.</span><strong>'+mediaArr+'</strong></div>'
+        +'<div class="cons-dow-stat"><span>Arr/cop</span><strong>'+ac+'</strong></div>'
+        +'<div class="cons-dow-stat"><span>Giornate</span><strong>'+d.n+'</strong></div>'
+        +'<div class="cons-dow-bar" style="width:'+barW+'%"></div>'
+      +'</div>';
+    });
+    dowEl.innerHTML=html||'<div style="font-size:12px;color:var(--muted);padding:10px">Nessun dato</div>';
+  }
+
+  // ── TOP 10 GIORNATE ──
+  var top10El=document.getElementById('cons-top10');
+  if(top10El&&aperti.length){
+    var sorted=[].concat(aperti).sort(function(a,b){return(b.coperti||0)-(a.coperti||0)}).slice(0,10);
+    var html='<thead><tr><th>#</th><th>Data</th><th>Giorno</th><th>Coperti</th><th>Arrost.</th><th>Arr/Cop</th><th>Pizze</th></tr></thead><tbody>';
+    sorted.forEach(function(s,i){
+      var ac=s.coperti>0?Math.round(s.arrosticini/s.coperti*100)/100:0;
+      var dow=GIORNI_CONS[(new Date(s.data+'T12:00:00').getDay()+6)%7];
+      html+='<tr>'
+        +'<td style="color:var(--amber);font-weight:700">'+(i+1)+'</td>'
+        +'<td>'+formatDate(s.data)+'</td>'
+        +'<td style="font-family:inherit">'+dow.substring(0,3)+'</td>'
+        +'<td class="'+(i===0?'best':'')+'">'+s.coperti+'</td>'
+        +'<td>'+s.arrosticini+'</td>'
+        +'<td>'+ac+'</td>'
+        +'<td>'+(s.pizze||0)+'</td>'
+      +'</tr>';
+    });
+    html+='</tbody>';
+    top10El.innerHTML=html;
+  }
+}
+
+function renderConsChart(elId,data,metric){
+  var el=document.getElementById(elId);if(!el||!data.length)return;
+  var maxV=Math.max.apply(null,data.map(function(d){return d.v}))||1;
+  var colors={coperti:'var(--green)',arrosticini:'var(--amber)',arr_cop:'var(--blue)',
+               pizze:'var(--blue)',hamburger:'#f472b6',tagliateR:'var(--red)'};
+  var color=colors[metric]||'var(--green)';
+  var html='';
+  data.forEach(function(d){
+    var h=Math.round((d.v/maxV)*82)+2;
+    html+='<div class="cons-bar-col">'
+      +'<div class="cons-bar-val">'+(d.v||'')+'</div>'
+      +'<div class="cons-bar-inner" style="height:'+h+'px;background:'+(d.v>0?color:'var(--bar-empty)')+'"></div>'
+      +'<div class="cons-bar-lbl">'+d.l+'</div>'
+    +'</div>';
+  });
+  el.innerHTML=html;
 }
 
 // TOAST
