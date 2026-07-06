@@ -368,6 +368,17 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
   .qty-ctrl{gap:2px}
   .qty-step{width:30px;height:30px}
 }
+
+.stor-kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.stor-kpi{background:var(--s2);border-radius:9px;padding:10px;text-align:center}
+.stor-kpi-val{font-size:16px;font-weight:700;line-height:1;color:var(--green)}
+.stor-kpi-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:3px;font-weight:700}
+.stor-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.stor-table th{background:var(--s2);padding:6px 8px;text-align:left;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+.stor-table td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px}
+.stor-table tr:last-child td{border-bottom:none}
+.stor-table td:first-child{font-family:inherit;font-weight:600;color:var(--text)}
+.stor-btn{background:none;border:1px solid var(--blue);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--blue);cursor:pointer;font-family:inherit;font-weight:600;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -589,6 +600,12 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
       <div class="chart-title" id="chart-time-title">Andamento nel tempo</div>
       <div class="bar-chart" id="chart-time"></div>
     </div>
+    <!-- ANALISI STORICO VENDITE -->
+    <div class="chart-box" id="storico-analysis-box" style="display:none">
+      <div class="chart-title" id="storico-analysis-title">Analisi vendite storiche</div>
+      <div id="storico-analysis-content"></div>
+    </div>
+
     <div class="sec-label" style="margin-bottom:7px">Storico ordini</div>
     <div class="orders-list" id="orders-list"></div>
   </div>
@@ -1091,6 +1108,7 @@ function renderDash(){
     '<div class="kpi red"><div class="kpi-val">'+Object.keys(supC).length+'</div><div class="kpi-lbl">Fornitori</div></div>';
   var bySup={};filtered.forEach(function(o){bySup[o.supplier]=(bySup[o.supplier]||0)+1});
   renderBarChart('chart-sup',Object.keys(bySup).map(function(k){return{l:k,v:bySup[k]}}));
+  renderStoricoAnalysis();
   function getVal(list,art){return art!=='all'?list.reduce(function(a,o){return a+getItemQty(o,art)},0):list.length}
   var timeData=[];
   if(period==='week'){
@@ -1152,8 +1170,8 @@ function renderPending(){
   updatePendingBadge();
 }
 function syncToSheet(){
-  var url=document.getElementById('gas-url').value.trim();
-  if(!url){toast('\u26A0 Inserisci URL Web App','err');return}
+  var url=document.getElementById('gas-url').value.trim()||gasUrl||'';
+  if(!url){toast('\u26A0 Inserisci l\'URL Web App nella schermata Sync','err');return}
   var pending=orders.filter(function(o){return !o.synced});
   if(!pending.length){toast('\u2713 Nessun ordine da sync','ok');return}
   var btn=document.getElementById('btn-sync-now'),status=document.getElementById('sync-status');
@@ -1174,8 +1192,8 @@ function syncToSheet(){
 function clearSynced(){orders=orders.filter(function(o){return !o.synced});sv(KEY_ORDERS,orders);renderPending();toast('\u2713 Rimossi','ok')}
 
 function syncRimanenze(){
-  var url=ld('gas_url','')||'';
-  if(!url){toast('\u26A0 Configura prima l\'URL del Web App','err');return}
+  var url=gasUrl||ld('gas_url','')||'';
+  if(!url){toast('\u26A0 Inserisci l\'URL Web App nella schermata Sync','err');return}
   if(!rimanenze.length){toast('\u26A0 Nessuna rimanenza da sincronizzare','err');return}
   var btn=event.target;btn.disabled=true;btn.textContent='Invio...';
   fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({tipo:'rimanenze',rimanenze:rimanenze})})
@@ -1189,8 +1207,8 @@ function syncRimanenze(){
 }
 
 function syncPresenze(){
-  var url=ld('gas_url','')||'';
-  if(!url){toast('\u26A0 Configura prima l\'URL del Web App','err');return}
+  var url=gasUrl||ld('gas_url','')||'';
+  if(!url){toast('\u26A0 Inserisci l\'URL Web App nella schermata Sync','err');return}
   if(!dipendenti.length){toast('\u26A0 Nessun dipendente configurato','err');return}
   var rows=[];
   var MESI_N=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
@@ -1545,13 +1563,14 @@ const PREV_ARTICOLI = [
 // Coefficienti default (articoli per coperto) per giorno
 // Verranno sovrascritti dallo storico reale
 var coeffDefault = {
-  0:{arrosticini:8.5,pizze:1.2,hamburger:0.4,tagliateR:0.2,tagliateB:0.15}, // LUN
-  1:{arrosticini:8.5,pizze:1.2,hamburger:0.4,tagliateR:0.2,tagliateB:0.15}, // MAR
-  2:{arrosticini:8.8,pizze:1.3,hamburger:0.4,tagliateR:0.2,tagliateB:0.15}, // MER
-  3:{arrosticini:9.0,pizze:1.3,hamburger:0.5,tagliateR:0.25,tagliateB:0.15}, // GIO
-  4:{arrosticini:9.5,pizze:1.5,hamburger:0.5,tagliateR:0.3,tagliateB:0.2},  // VEN
-  5:{arrosticini:10.0,pizze:1.8,hamburger:0.6,tagliateR:0.35,tagliateB:0.25},// SAB
-  6:{arrosticini:9.0,pizze:1.4,hamburger:0.5,tagliateR:0.25,tagliateB:0.2}  // DOM
+  // Coefficienti calibrati su dati reali Fuego 2025 (88 giornate, giu-set)
+  0:{arrosticini:6.38,pizze:0.07,hamburger:0.11,tagliateR:0.07,tagliateB:0.0}, // LUN
+  1:{arrosticini:6.89,pizze:0.07,hamburger:0.13,tagliateR:0.07,tagliateB:0.0}, // MAR
+  2:{arrosticini:7.18,pizze:0.07,hamburger:0.06,tagliateR:0.08,tagliateB:0.0}, // MER
+  3:{arrosticini:6.01,pizze:0.12,hamburger:0.10,tagliateR:0.07,tagliateB:0.0}, // GIO
+  4:{arrosticini:6.21,pizze:0.09,hamburger:0.10,tagliateR:0.07,tagliateB:0.0}, // VEN
+  5:{arrosticini:6.49,pizze:0.10,hamburger:0.10,tagliateR:0.08,tagliateB:0.0}, // SAB
+  6:{arrosticini:6.70,pizze:0.09,hamburger:0.10,tagliateR:0.06,tagliateB:0.0}  // DOM
 };
 var GIORNI_IT=['Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato','Domenica'];
 
@@ -2039,15 +2058,24 @@ function caricaStorico(input){
         });
       }
 
-      if(!nuovoStorico.length){toast('⚠ Nessuna riga valida trovata. Controlla il formato','err');return}
-
-      storico = nuovoStorico;
-      sv(KEY_STOR, storico);
+      // ACCUMULO: aggiunge senza cancellare, sovrascrive date esistenti
+      var existingMap={};
+      storico.forEach(function(s){existingMap[s.data]=true});
+      var nuove=0,aggiornate=0;
+      nuovoStorico.forEach(function(ns){
+        if(existingMap[ns.data]){
+          for(var i=0;i<storico.length;i++){
+            if(storico[i].data===ns.data){storico[i]=ns;aggiornate++;break}
+          }
+        } else { storico.push(ns); nuove++; }
+      });
+      storico.sort(function(a,b){return b.ts-a.ts});
+      sv(KEY_STOR,storico);
       calcolaCoefficienti();
       renderStoricoStats();
-      toast('✓ Storico caricato: ' + storico.length + ' giorni','ok');
+      toast('\u2713 '+nuove+' nuove giornate, '+aggiornate+' aggiornate (tot. '+storico.length+')','ok');
     }catch(err){
-      toast('⚠ Errore lettura: ' + err.message,'err');
+      toast('\u26A0 Errore lettura: ' + err.message,'err');
     }
     input.value = '';
   };
@@ -2056,364 +2084,306 @@ function caricaStorico(input){
 
 function calcolaCoefficienti(){
   if(!storico.length) return;
-  // Raggruppa per giorno della settimana
-  var gruppi = {};
-  for(var g=0; g<7; g++) gruppi[g] = {n:0, arrosticini:0, pizze:0, hamburger:0, tagliateR:0, tagliateB:0};
+  var gruppi={};
+  for(var g=0;g<7;g++) gruppi[g]={n:0,arrosticini:0,pizze:0,hamburger:0,tagliateR:0,tagliateB:0};
   storico.forEach(function(s){
-    if(!s.coperti || s.coperti === 0) return;
-    var g = s.giorno;
+    if(!s.coperti||s.coperti===0)return;
+    var g=s.giorno;if(g===undefined||g===null)return;
     gruppi[g].n++;
-    gruppi[g].arrosticini += s.arrosticini / s.coperti;
-    gruppi[g].pizze       += s.pizze       / s.coperti;
-    gruppi[g].hamburger   += s.hamburger   / s.coperti;
-    gruppi[g].tagliateR   += s.tagliateR   / s.coperti;
-    gruppi[g].tagliateB   += s.tagliateB   / s.coperti;
+    gruppi[g].arrosticini+=s.arrosticini/s.coperti;
+    gruppi[g].pizze+=s.pizze/s.coperti;
+    gruppi[g].hamburger+=s.hamburger/s.coperti;
+    gruppi[g].tagliateR+=s.tagliateR/s.coperti;
+    gruppi[g].tagliateB+=(s.tagliateB||0)/s.coperti;
   });
-  var nuoviCoeff = {};
-  for(var g=0; g<7; g++){
-    var n = gruppi[g].n || 1;
-    nuoviCoeff[g] = {
-      arrosticini: Math.round((gruppi[g].arrosticini / n) * 10) / 10,
-      pizze:       Math.round((gruppi[g].pizze       / n) * 10) / 10,
-      hamburger:   Math.round((gruppi[g].hamburger   / n) * 10) / 10,
-      tagliateR:   Math.round((gruppi[g].tagliateR   / n) * 10) / 10,
-      tagliateB:   Math.round((gruppi[g].tagliateB   / n) * 10) / 10
+  var nuoviCoeff={};
+  for(var g=0;g<7;g++){
+    var n=gruppi[g].n||1;
+    nuoviCoeff[g]={
+      arrosticini:Math.round((gruppi[g].arrosticini/n)*100)/100,
+      pizze:Math.round((gruppi[g].pizze/n)*100)/100,
+      hamburger:Math.round((gruppi[g].hamburger/n)*100)/100,
+      tagliateR:Math.round((gruppi[g].tagliateR/n)*100)/100,
+      tagliateB:Math.round((gruppi[g].tagliateB/n)*100)/100
     };
-    // Se nessun dato per quel giorno, usa default
-    if(gruppi[g].n === 0) nuoviCoeff[g] = JSON.parse(JSON.stringify(coeffDefault[g]));
+    if(gruppi[g].n===0) nuoviCoeff[g]=JSON.parse(JSON.stringify(coeffDefault[g]));
   }
-  coefficienti = nuoviCoeff;
-  sv(KEY_COEFF, coefficienti);
+  coefficienti=nuoviCoeff;
+  sv(KEY_COEFF,coefficienti);
   renderCoeffTable();
 }
 
 function renderStoricoStats(){
-  var el = document.getElementById('storico-stats');
-  if(!el || !storico.length) return;
-  var totCop = storico.reduce(function(a,s){return a+s.coperti},0);
-  var totArr = storico.reduce(function(a,s){return a+s.arrosticini},0);
-  var html = '<div style="margin-top:8px">'
-    + '<div class="storico-stat"><span>Giorni caricati:</span><strong>' + storico.length + '</strong></div>'
-    + '<div class="storico-stat"><span>Coperti totali:</span><strong>' + totCop + '</strong></div>'
-    + '<div class="storico-stat"><span>Arrosticini totali:</span><strong>' + totArr + '</strong></div>'
-    + '<div class="storico-stat"><span>Media arrost/coperto:</span><strong>' + (totCop > 0 ? Math.round((totArr/totCop)*10)/10 : 'n/d') + '</strong></div>'
-    + '</div>';
-  el.innerHTML = html;
+  var el=document.getElementById('storico-stats');
+  if(!el||!storico.length)return;
+  var totCop=storico.reduce(function(a,s){return a+s.coperti},0);
+  var totArr=storico.reduce(function(a,s){return a+(s.arrosticini||0)},0);
+  var anni=[...new Set(storico.map(function(s){return s.data.substring(0,4)}))].sort().join(', ');
+  el.innerHTML='<div style="margin-top:8px">'
+    +'<div class="storico-stat"><span>Giorni caricati:</span><strong>'+storico.length+'</strong></div>'
+    +'<div class="storico-stat"><span>Coperti totali:</span><strong>'+totCop.toLocaleString('it-IT')+'</strong></div>'
+    +'<div class="storico-stat"><span>Arrosticini totali:</span><strong>'+totArr.toLocaleString('it-IT')+'</strong></div>'
+    +'<div class="storico-stat"><span>Media arr/coperto:</span><strong>'+(totCop>0?Math.round((totArr/totCop)*10)/10:'n/d')+'</strong></div>'
+    +'<div class="storico-stat"><span>Anni presenti:</span><strong>'+anni+'</strong></div>'
+    +'</div>';
 }
 
 function renderCoeffTable(){
-  var tbody = document.getElementById('coeff-tbody');
-  if(!tbody) return;
-  var html = '';
-  GIORNI_IT.forEach(function(g, i){
-    var c = coefficienti[i] || coeffDefault[i];
-    html += '<tr>'
-      + '<td>' + g + '</td>'
-      + '<td>' + (c.arrosticini||0) + '</td>'
-      + '<td>' + (c.pizze||0) + '</td>'
-      + '<td>' + (c.hamburger||0) + '</td>'
-      + '<td>' + (c.tagliateR||0) + '</td>'
-      + '<td>' + (c.tagliateB||0) + '</td>'
-    + '</tr>';
+  var tbody=document.getElementById('coeff-tbody');if(!tbody)return;
+  var html='';
+  GIORNI_IT.forEach(function(g,i){
+    var co=coefficienti[i]||coeffDefault[i];
+    html+='<tr><td>'+g+'</td><td>'+co.arrosticini+'</td><td>'+co.pizze+'</td><td>'+co.hamburger+'</td><td>'+co.tagliateR+'</td><td>'+co.tagliateB+'</td></tr>';
   });
-  tbody.innerHTML = html;
+  tbody.innerHTML=html;
 }
 
 function resetCoefficienti(){
-  coefficienti = JSON.parse(JSON.stringify(coeffDefault));
-  sv(KEY_COEFF, coefficienti);
+  coefficienti=JSON.parse(JSON.stringify(coeffDefault));
+  sv(KEY_COEFF,coefficienti);
   renderCoeffTable();
-  toast('✓ Coefficienti default ripristinati','ok');
+  toast('\u2713 Coefficienti default ripristinati','ok');
 }
 
-// UTILITY
 function formatDate(d){
-  if(!d) return '';
-  var p = d.split('-');
-  return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : d;
+  if(!d)return'';
+  var p=d.split('-');
+  return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;
 }
 
-
-// ═══════════════════════════════════════════════════════════════════
-// MODULO DIPENDENTI & PRESENZE
-// ═══════════════════════════════════════════════════════════════════
-var KEY_DIP   = 'fuego_dipendenti';
-var KEY_PRES  = 'fuego_presenze';
-var DIP_COLORS = ['#7c3aed','#b45309','#047857','#b91c1c','#2563eb','#db2777'];
-var MESI_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-var WA_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.524 5.848L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.359-.214-3.727.978.995-3.629-.233-.374A9.771 9.771 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>';
-
-var dipendenti = ld(KEY_DIP, []);
-var presenze   = ld(KEY_PRES, {}); // {dipId: {YYYY-MM-DD: 'pres'|'ferie'|'malattia'}}
-var presGiornoSel = null; // giorno selezionato nel grid
-
-function initDipendenti(){
-  renderDipList();
-  renderPresSelettori();
-  renderPresenze();
+// ANALISI STORICO IN DASHBOARD
+function renderStoricoAnalysis(){
+  var box=document.getElementById('storico-analysis-box');
+  var content=document.getElementById('storico-analysis-content');
+  if(!box||!content)return;
+  if(!storico||!storico.length){box.style.display='none';return}
+  var period=document.getElementById('f-period').value;
+  var now=new Date();
+  var storFilt=filterByPeriod(storico,period,now);
+  if(!storFilt.length){box.style.display='none';return}
+  box.style.display='block';
+  var totCop=storFilt.reduce(function(a,s){return a+(s.coperti||0)},0);
+  var totArr=storFilt.reduce(function(a,s){return a+(s.arrosticini||0)},0);
+  var totPiz=storFilt.reduce(function(a,s){return a+(s.pizze||0)},0);
+  var totHam=storFilt.reduce(function(a,s){return a+(s.hamburger||0)},0);
+  var totTagR=storFilt.reduce(function(a,s){return a+(s.tagliateR||0)},0);
+  var gg=storFilt.length;
+  var mediaArr=totCop>0?Math.round((totArr/totCop)*10)/10:0;
+  var bestDay=storFilt.reduce(function(a,b){return(b.coperti||0)>(a.coperti||0)?b:a},storFilt[0]);
+  var byDow={};var GSHORT=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  storFilt.forEach(function(s){
+    var dw=new Date(s.data+'T12:00:00').getDay();
+    if(!byDow[dw])byDow[dw]={cop:0,arr:0,n:0};
+    byDow[dw].cop+=s.coperti||0;byDow[dw].arr+=s.arrosticini||0;byDow[dw].n++;
+  });
+  var title=document.getElementById('storico-analysis-title');
+  if(title)title.textContent='Analisi vendite \u2014 '+gg+' giornate storico';
+  var html='<div class="stor-kpis">';
+  html+='<div class="stor-kpi"><div class="stor-kpi-val">'+totCop.toLocaleString('it-IT')+'</div><div class="stor-kpi-lbl">Coperti</div></div>';
+  html+='<div class="stor-kpi"><div class="stor-kpi-val">'+totArr.toLocaleString('it-IT')+'</div><div class="stor-kpi-lbl">Arrosticini</div></div>';
+  html+='<div class="stor-kpi"><div class="stor-kpi-val" style="color:var(--amber)">'+mediaArr+'</div><div class="stor-kpi-lbl">Arr/coperto</div></div>';
+  html+='</div>';
+  html+='<div style="margin-bottom:6px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase">Media arrosticini per giorno</div>';
+  var dowData=[1,2,3,4,5,6,0].map(function(dw){var d=byDow[dw];return{l:GSHORT[dw],v:d&&d.n>0?Math.round(d.arr/d.n):0}});
+  var maxV=Math.max.apply(null,dowData.map(function(d){return d.v}))||1;
+  html+='<div style="display:flex;gap:4px;align-items:flex-end;height:50px;margin-bottom:12px">';
+  dowData.forEach(function(d){
+    var h=Math.round((d.v/maxV)*42)+2;
+    html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
+      +'<div style="font-size:8px;color:var(--text);font-family:monospace;font-weight:700">'+(d.v||'')+'</div>'
+      +'<div style="width:100%;height:'+h+'px;background:'+(d.v>0?'var(--green)':'var(--bar-empty)')+';border-radius:3px 3px 0 0"></div>'
+      +'<div style="font-size:9px;color:var(--muted)">'+d.l+'</div>'
+    +'</div>';
+  });
+  html+='</div>';
+  html+='<table class="stor-table"><thead><tr><th>Prodotto</th><th>Totale</th><th>Media/gg</th><th>Per cop.</th></tr></thead><tbody>';
+  [{n:'Arrosticini',tot:totArr},{n:'Pizze',tot:totPiz},{n:'Hamburger',tot:totHam},{n:'Tagliate R.',tot:totTagR}].forEach(function(p){
+    html+='<tr><td>'+p.n+'</td><td>'+p.tot.toLocaleString('it-IT')+'</td><td>'+(gg>0?Math.round(p.tot/gg*10)/10:0)+'</td><td>'+(totCop>0?Math.round(p.tot/totCop*100)/100:0)+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  if(bestDay)html+='<div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.7">\u2605 Record: <strong style="color:var(--text)">'+formatDate(bestDay.data)+'</strong> \u2014 '+(bestDay.coperti||0)+' coperti, '+(bestDay.arrosticini||0)+' arrosticini</div>';
+  content.innerHTML=html;
 }
 
-// ── GESTIONE DIPENDENTI ─────────────────────────────────────────────
+// DIPENDENTI & PRESENZE
+var KEY_DIP='fuego_dipendenti';
+var KEY_PRES='fuego_presenze';
+var DIP_COLORS=['#2563eb','#7c3aed','#db2777','#047857','#b45309','#b91c1c'];
+var MESI_FULL=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+var WA_SVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.524 5.848L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.359-.214-3.727.978.995-3.629-.233-.374A9.771 9.771 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>';
+var dipendenti=ld(KEY_DIP,[]);
+var presenze=ld(KEY_PRES,{});
+var presGiornoSel=null;
+
+function initDipendenti(){renderDipList();renderPresSelettori();renderPresenze()}
+
 function aggiungiDipendente(){
-  var nameEl = document.getElementById('dip-new-name');
-  var roleEl = document.getElementById('dip-new-role');
-  var name = nameEl ? nameEl.value.trim() : '';
-  var role = roleEl ? roleEl.value.trim() : '';
+  var nameEl=document.getElementById('dip-new-name');
+  var roleEl=document.getElementById('dip-new-role');
+  var name=nameEl?nameEl.value.trim():'';
+  var role=roleEl?roleEl.value.trim():'';
   if(!name){toast('\u26A0 Inserisci il nome','err');return}
-  var id = 'dip_' + Date.now();
-  var color = DIP_COLORS[dipendenti.length % DIP_COLORS.length];
-  dipendenti.push({id:id, name:name, role:role, color:color});
-  sv(KEY_DIP, dipendenti);
-  if(nameEl) nameEl.value = '';
-  if(roleEl) roleEl.value = '';
-  renderDipList();
-  renderPresSelettori();
-  toast('\u2713 ' + name + ' aggiunto','ok');
+  var id='dip_'+Date.now();
+  dipendenti.push({id:id,name:name,role:role,color:DIP_COLORS[dipendenti.length%DIP_COLORS.length]});
+  sv(KEY_DIP,dipendenti);
+  if(nameEl)nameEl.value='';if(roleEl)roleEl.value='';
+  renderDipList();renderPresSelettori();
+  toast('\u2713 '+name+' aggiunto','ok');
 }
 
 function eliminaDipendente(id){
-  var d = dipendenti.find(function(x){return x.id===id});
-  if(!d) return;
-  if(!confirm('Eliminare ' + d.name + '? Le presenze registrate verranno cancellate.')) return;
-  dipendenti = dipendenti.filter(function(x){return x.id!==id});
+  var d=dipendenti.find(function(x){return x.id===id});
+  if(!d)return;
+  if(!confirm('Eliminare '+d.name+'?'))return;
+  dipendenti=dipendenti.filter(function(x){return x.id!==id});
   delete presenze[id];
-  sv(KEY_DIP, dipendenti);
-  sv(KEY_PRES, presenze);
-  renderDipList();
-  renderPresSelettori();
-  renderPresenze();
+  sv(KEY_DIP,dipendenti);sv(KEY_PRES,presenze);
+  renderDipList();renderPresSelettori();renderPresenze();
 }
 
 function renderDipList(){
-  var el = document.getElementById('dip-list');
-  if(!el) return;
-  if(!dipendenti.length){
-    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">Nessun dipendente aggiunto</div>';
-    return;
-  }
-  var html = '';
+  var el=document.getElementById('dip-list');if(!el)return;
+  if(!dipendenti.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">Nessun dipendente aggiunto</div>';return}
+  var html='';
   dipendenti.forEach(function(d){
-    var ini = d.name.split(' ').map(function(p){return p[0]}).join('').substring(0,2).toUpperCase();
-    html += '<div class="dip-row">'
-      + '<div class="dip-avatar" style="background:'+d.color+'20;color:'+d.color+'">'+ini+'</div>'
-      + '<div><div class="dip-name">'+d.name+'</div>'
-        + (d.role?'<div class="dip-role">'+d.role+'</div>':'')
-      + '</div>'
-      + '<button class="dip-del" onclick="eliminaDipendente(\''+d.id+'\')">&#128465;</button>'
-    + '</div>';
+    var ini=d.name.split(' ').map(function(p){return p[0]}).join('').substring(0,2).toUpperCase();
+    html+='<div class="dip-row">'
+      +'<div class="dip-avatar" style="background:'+d.color+'20;color:'+d.color+'">'+ini+'</div>'
+      +'<div><div class="dip-name">'+d.name+'</div>'+(d.role?'<div class="dip-role">'+d.role+'</div>':'')+'</div>'
+      +'<button class="dip-del" onclick="eliminaDipendente(\''+d.id+'\')">&#128465;</button>'
+    +'</div>';
   });
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
-// ── PRESENZE ────────────────────────────────────────────────────────
 function renderPresSelettori(){
-  var sel = document.getElementById('pres-dip-sel');
-  if(!sel) return;
-  var cur = sel.value;
-  var html = '<option value="">Seleziona dipendente...</option>';
-  dipendenti.forEach(function(d){
-    html += '<option value="'+d.id+'">'+d.name+'</option>';
-  });
-  sel.innerHTML = html;
-  if(cur) sel.value = cur;
-
-  // Mese e anno
-  var meseEl = document.getElementById('pres-mese');
-  var annoEl = document.getElementById('pres-anno');
-  var now = new Date();
-  if(meseEl && !meseEl.options.length){
+  var sel=document.getElementById('pres-dip-sel');if(!sel)return;
+  var cur=sel.value;
+  var html='<option value="">Seleziona dipendente...</option>';
+  dipendenti.forEach(function(d){html+='<option value="'+d.id+'">'+d.name+'</option>'});
+  sel.innerHTML=html;if(cur)sel.value=cur;
+  var meseEl=document.getElementById('pres-mese');
+  var annoEl=document.getElementById('pres-anno');
+  var now=new Date();
+  if(meseEl&&!meseEl.options.length){
     MESI_FULL.forEach(function(m,i){
-      var opt = document.createElement('option');
-      opt.value = i; opt.textContent = m;
-      if(i === now.getMonth()) opt.selected = true;
-      meseEl.appendChild(opt);
+      var opt=document.createElement('option');opt.value=i;opt.textContent=m;
+      if(i===now.getMonth())opt.selected=true;meseEl.appendChild(opt);
     });
   }
-  if(annoEl && !annoEl.options.length){
-    for(var y = now.getFullYear()-1; y <= now.getFullYear()+1; y++){
-      var opt = document.createElement('option');
-      opt.value = y; opt.textContent = y;
-      if(y === now.getFullYear()) opt.selected = true;
-      annoEl.appendChild(opt);
+  if(annoEl&&!annoEl.options.length){
+    for(var y=now.getFullYear()-1;y<=now.getFullYear()+1;y++){
+      var opt=document.createElement('option');opt.value=y;opt.textContent=y;
+      if(y===now.getFullYear())opt.selected=true;annoEl.appendChild(opt);
     }
   }
 }
 
 function renderPresenze(){
-  var dipId = document.getElementById('pres-dip-sel') ? document.getElementById('pres-dip-sel').value : '';
-  var mese  = document.getElementById('pres-mese')    ? parseInt(document.getElementById('pres-mese').value)    : new Date().getMonth();
-  var anno  = document.getElementById('pres-anno')    ? parseInt(document.getElementById('pres-anno').value)    : new Date().getFullYear();
-  var gridEl = document.getElementById('pres-grid');
-  var summEl = document.getElementById('pres-summary');
-  if(!gridEl) return;
+  var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
+  var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
+  var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
+  var gridEl=document.getElementById('pres-grid');
+  var summEl=document.getElementById('pres-summary');
+  if(!gridEl)return;
   if(!dipId){gridEl.innerHTML='';if(summEl)summEl.style.display='none';return}
-
-  if(!presenze[dipId]) presenze[dipId] = {};
-  var pDip = presenze[dipId];
-
-  // Calcola giorni del mese
-  var primoGiorno = new Date(anno, mese, 1).getDay(); // 0=dom
-  var primoIT = (primoGiorno + 6) % 7; // 0=lun
-  var giorniMese = new Date(anno, mese+1, 0).getDate();
-  var oggi = new Date().toISOString().split('T')[0];
-
-  var grid = document.createElement('div');
-  grid.className = 'pres-month-grid';
-
-  // Intestazioni giorni
-  var giorniShort = ['L','M','M','G','V','S','D'];
-  giorniShort.forEach(function(g){
-    var h = document.createElement('div');
-    h.style.cssText = 'text-align:center;font-size:9px;font-weight:700;color:var(--muted);padding:4px 0;letter-spacing:1px';
-    h.textContent = g;
-    grid.appendChild(h);
-  });
-
-  // Celle vuote prima del primo giorno
-  for(var e=0; e<primoIT; e++){
-    var emp = document.createElement('div');
-    emp.className = 'pres-day-cell empty';
-    grid.appendChild(emp);
-  }
-
-  // Contatori per summary
-  var contatori = {pres:0, ferie:0, malattia:0, assente:0};
-
-  // Giorni del mese
-  for(var g=1; g<=giorniMese; g++){
-    var dateStr = anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
-    var tipo = pDip[dateStr] || null;
-    var dow = new Date(anno, mese, g).getDay(); // 0=dom
-    var isFestivo = (dow===0||dow===6);
-
-    if(tipo) contatori[tipo]++;
-    else if(!isFestivo) contatori.assente++;
-
-    var cell = document.createElement('div');
-    cell.className = 'pres-day-cell' + (tipo?' '+tipo:'') + (dateStr===oggi?' today':'');
-    cell.textContent = g;
-    if(isFestivo && !tipo) cell.style.opacity = '0.4';
-
-    (function(ds, cell){
-      cell.onclick = function(){
-        presGiornoSel = ds;
-        document.querySelectorAll('.pres-day-cell').forEach(function(c){c.style.outline=''});
-        cell.style.outline = '2px solid var(--blue)';
-        var tipoSel = document.getElementById('pres-tipo-sel');
-        if(tipoSel) tipoSel.style.display = 'block';
-      };
-    })(dateStr, cell);
+  if(!presenze[dipId])presenze[dipId]={};
+  var pDip=presenze[dipId];
+  var primoIT=(new Date(anno,mese,1).getDay()+6)%7;
+  var giorniMese=new Date(anno,mese+1,0).getDate();
+  var oggi=new Date().toISOString().split('T')[0];
+  var grid=document.createElement('div');grid.className='pres-month-grid';
+  var giorniShort=['L','M','M','G','V','S','D'];
+  giorniShort.forEach(function(g){var h=document.createElement('div');h.style.cssText='text-align:center;font-size:9px;font-weight:700;color:var(--muted);padding:4px 0;letter-spacing:1px';h.textContent=g;grid.appendChild(h)});
+  for(var e=0;e<primoIT;e++){var emp=document.createElement('div');emp.className='pres-day-cell empty';grid.appendChild(emp)}
+  var contatori={pres:0,ferie:0,malattia:0};
+  for(var g=1;g<=giorniMese;g++){
+    var dateStr=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
+    var tipo=pDip[dateStr]||null;
+    var dow=new Date(anno,mese,g).getDay();
+    var isFest=(dow===0||dow===6);
+    if(tipo)contatori[tipo]=(contatori[tipo]||0)+1;
+    var cell=document.createElement('div');
+    cell.className='pres-day-cell'+(tipo?' '+tipo:'')+(dateStr===oggi?' today':'');
+    cell.textContent=g;
+    if(isFest&&!tipo)cell.style.opacity='0.4';
+    (function(ds,cell){cell.onclick=function(){presGiornoSel=ds;document.querySelectorAll('.pres-day-cell').forEach(function(c){c.style.outline=''});cell.style.outline='2px solid var(--blue)';var tipoSel=document.getElementById('pres-tipo-sel');if(tipoSel)tipoSel.style.display='block'}})(dateStr,cell);
     grid.appendChild(cell);
   }
-
-  gridEl.innerHTML = '';
-  gridEl.appendChild(grid);
-
-  // Summary
-  if(summEl){
-    summEl.style.display = 'grid';
-    summEl.innerHTML =
-      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--green)">'+contatori.pres+'</div><div class="pres-kpi-lbl">Presenti</div></div>'+
-      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--amber)">'+contatori.ferie+'</div><div class="pres-kpi-lbl">Ferie</div></div>'+
-      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--red)">'+contatori.malattia+'</div><div class="pres-kpi-lbl">Malattia</div></div>';
-  }
+  gridEl.innerHTML='';gridEl.appendChild(grid);
+  if(summEl){summEl.style.display='grid';summEl.innerHTML='<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--green)">'+contatori.pres+'</div><div class="pres-kpi-lbl">Presenti</div></div><div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--amber)">'+contatori.ferie+'</div><div class="pres-kpi-lbl">Ferie</div></div><div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--red)">'+(contatori.malattia||0)+'</div><div class="pres-kpi-lbl">Malattia</div></div>'}
 }
 
 function setPresenzaTipo(tipo){
   if(!presGiornoSel){toast('\u26A0 Seleziona prima un giorno','err');return}
-  var dipId = document.getElementById('pres-dip-sel') ? document.getElementById('pres-dip-sel').value : '';
+  var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
   if(!dipId){toast('\u26A0 Seleziona il dipendente','err');return}
-  if(!presenze[dipId]) presenze[dipId] = {};
-  if(tipo) presenze[dipId][presGiornoSel] = tipo;
+  if(!presenze[dipId])presenze[dipId]={};
+  if(tipo)presenze[dipId][presGiornoSel]=tipo;
   else delete presenze[dipId][presGiornoSel];
-  sv(KEY_PRES, presenze);
-  presGiornoSel = null;
-  var tipoSel = document.getElementById('pres-tipo-sel');
-  if(tipoSel) tipoSel.style.display = 'none';
+  sv(KEY_PRES,presenze);
+  presGiornoSel=null;
+  var tipoSel=document.getElementById('pres-tipo-sel');if(tipoSel)tipoSel.style.display='none';
   renderPresenze();
 }
 
-// ── EXPORT EXCEL PRESENZE ───────────────────────────────────────────
 function exportPresenzeExcel(){
-  var dipId = document.getElementById('pres-dip-sel') ? document.getElementById('pres-dip-sel').value : '';
-  var mese  = document.getElementById('pres-mese')    ? parseInt(document.getElementById('pres-mese').value)    : new Date().getMonth();
-  var anno  = document.getElementById('pres-anno')    ? parseInt(document.getElementById('pres-anno').value)    : new Date().getFullYear();
+  var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
+  var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
+  var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
   if(!dipId){toast('\u26A0 Seleziona il dipendente','err');return}
-  var dip = dipendenti.find(function(d){return d.id===dipId});
-  if(!dip) return;
-  var pDip = presenze[dipId] || {};
-  var giorniMese = new Date(anno, mese+1, 0).getDate();
-
-  // Costruisci CSV
-  var rows = [];
-  rows.push(['Registro Presenze - ' + dip.name + ' (' + (dip.role||'') + ')']);
-  rows.push([MESI_FULL[mese] + ' ' + anno]);
-  rows.push([]);
+  var dip=dipendenti.find(function(d){return d.id===dipId});if(!dip)return;
+  var pDip=presenze[dipId]||{};
+  var giorniMese=new Date(anno,mese+1,0).getDate();
+  var rows=[];
+  rows.push(['Registro Presenze - '+dip.name+(dip.role?' ('+dip.role+')':'')]);
+  rows.push([MESI_FULL[mese]+' '+anno]);rows.push([]);
   rows.push(['Giorno','Data','Giorno settimana','Stato']);
-  var giorniNome = ['Domenica','Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
+  var giorniNome=['Domenica','Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
   var totPres=0,totFerie=0,totMal=0;
-  for(var g=1; g<=giorniMese; g++){
-    var dateStr = anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
-    var dow = new Date(anno,mese,g).getDay();
-    var tipo = pDip[dateStr] || (dow===0||dow===6 ? 'Festivo' : 'Assente');
-    if(tipo==='pres'){totPres++;tipo='Presente'}
-    else if(tipo==='ferie'){totFerie++;tipo='Ferie'}
-    else if(tipo==='malattia'){totMal++;tipo='Malattia'}
-    rows.push([g, dateStr, giorniNome[dow], tipo]);
+  for(var g=1;g<=giorniMese;g++){
+    var dateStr=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
+    var dow=new Date(anno,mese,g).getDay();
+    var tipo=pDip[dateStr]||(dow===0||dow===6?'Festivo':'Assente');
+    if(tipo==='pres'){totPres++;tipo='Presente'}else if(tipo==='ferie'){totFerie++;tipo='Ferie'}else if(tipo==='malattia'){totMal++;tipo='Malattia'}
+    rows.push([g,dateStr,giorniNome[dow],tipo]);
   }
-  rows.push([]);
-  rows.push(['TOTALI','Presenti: '+totPres,'Ferie: '+totFerie,'Malattia: '+totMal]);
-
-  var csv = rows.map(function(r){
-    return r.map(function(v){return '"'+String(v||'').replace(/"/g,'""')+'"'}).join(',');
-  }).join('\n');
-
-  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'presenze_'+dip.name.replace(/\s+/g,'_')+'_'+MESI_FULL[mese]+'_'+anno+'.csv';
-  a.click();
-  toast('\u2713 Export CSV scaricato','ok');
+  rows.push([]);rows.push(['TOTALI','Presenti: '+totPres,'Ferie: '+totFerie,'Malattia: '+totMal]);
+  var csv=rows.map(function(r){return r.map(function(v){return'"'+String(v||'').replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='presenze_'+dip.name.replace(/\s+/g,'_')+'_'+MESI_FULL[mese]+'_'+anno+'.csv';
+  a.click();toast('\u2713 Export CSV scaricato','ok');
 }
 
-// ── EXPORT PDF PRESENZE ─────────────────────────────────────────────
 function exportPresenzePDF(){
-  var dipId = document.getElementById('pres-dip-sel') ? document.getElementById('pres-dip-sel').value : '';
-  var mese  = document.getElementById('pres-mese')    ? parseInt(document.getElementById('pres-mese').value)    : new Date().getMonth();
-  var anno  = document.getElementById('pres-anno')    ? parseInt(document.getElementById('pres-anno').value)    : new Date().getFullYear();
+  var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
+  var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
+  var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
   if(!dipId){toast('\u26A0 Seleziona il dipendente','err');return}
-  var dip = dipendenti.find(function(d){return d.id===dipId});
-  if(!dip) return;
-  var pDip = presenze[dipId] || {};
-  var giorniMese = new Date(anno, mese+1, 0).getDate();
-  var giorniNome = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
-  var primoIT = (new Date(anno,mese,1).getDay()+6)%7;
+  var dip=dipendenti.find(function(d){return d.id===dipId});if(!dip)return;
+  var pDip=presenze[dipId]||{};
+  var giorniMese=new Date(anno,mese+1,0).getDate();
+  var primoIT=(new Date(anno,mese,1).getDay()+6)%7;
+  var giorniNome=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  var colori={pres:'#d1fae5',ferie:'#fef3c7',malattia:'#fee2e2',festivo:'#f3f4f6',assente:'#ffffff'};
+  var testiC={pres:'#065f46',ferie:'#92400e',malattia:'#991b1b',festivo:'#9ca3af',assente:'#374151'};
   var totPres=0,totFerie=0,totMal=0;
-
-  var colori = {pres:'#d1fae5',ferie:'#fef3c7',malattia:'#fee2e2',festivo:'#f3f4f6',assente:'#ffffff'};
-  var testiC = {pres:'#065f46',ferie:'#92400e',malattia:'#991b1b',festivo:'#9ca3af',assente:'#374151'};
-
-  // Genera HTML per stampa
-  var cells = '';
-  giorniNome.forEach(function(g){
-    cells += '<th style="background:#1e293b;color:#fff;padding:6px;font-size:11px;letter-spacing:1px">'+g+'</th>';
-  });
-  var dayCells = '';
-  for(var e=0;e<primoIT;e++) dayCells+='<td></td>';
+  var cells='';
+  giorniNome.forEach(function(g){cells+='<th style="background:#1e293b;color:#fff;padding:6px;font-size:11px;letter-spacing:1px">'+g+'</th>'});
+  var dayCells='';
+  for(var e=0;e<primoIT;e++)dayCells+='<td></td>';
   for(var g=1;g<=giorniMese;g++){
     var dateStr=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
     var dow=new Date(anno,mese,g).getDay();
     var isFest=(dow===0||dow===6);
     var tipo=pDip[dateStr]||(isFest?'festivo':'assente');
-    if(tipo==='pres')totPres++;
-    else if(tipo==='ferie')totFerie++;
-    else if(tipo==='malattia')totMal++;
+    if(tipo==='pres')totPres++;else if(tipo==='ferie')totFerie++;else if(tipo==='malattia')totMal++;
     var label={pres:'P',ferie:'F',malattia:'M',festivo:'',assente:''}[tipo]||'';
     dayCells+='<td style="background:'+colori[tipo]+';color:'+testiC[tipo]+';padding:8px 4px;text-align:center;font-weight:700;font-size:13px">'+g+'<br><span style="font-size:9px">'+label+'</span></td>';
-    if((primoIT+g)%7===0) dayCells+='</tr><tr>';
+    if((primoIT+g)%7===0)dayCells+='</tr><tr>';
   }
-
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Presenze</title>'
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Presenze</title>'
     +'<style>body{font-family:Arial,sans-serif;padding:20px;color:#1e293b}'
     +'h1{font-size:18px;margin-bottom:4px}h2{font-size:14px;color:#64748b;font-weight:400;margin-bottom:16px}'
     +'table{border-collapse:collapse;width:100%}td,th{border:1px solid #e2e8f0}'
@@ -2429,32 +2399,24 @@ function exportPresenzePDF(){
     +'<table><thead><tr>'+cells+'</tr></thead><tbody><tr>'+dayCells+'</tr></tbody></table>'
     +'<div style="margin-top:16px;font-size:11px;color:#94a3b8">P=Presente &nbsp; F=Ferie &nbsp; M=Malattia</div>'
     +'<div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px">'
-    +'<p style="font-size:11px;color:#94a3b8">Generato da Fuego Ordini &mdash; '+new Date().toLocaleDateString("it-IT")+'</p></div>'
-    +'<script>window.onload=function(){window.print()}<\/script>'
+    +'<p style="font-size:11px;color:#94a3b8">Generato da Fuego Ordini &mdash; '+new Date().toLocaleDateString('it-IT')+'</p></div>'
+    +'<scr'+'ipt>window.onload=function(){window.print()}</'+'script>'
     +'</body></html>';
-
-  var w = window.open('','_blank');
+  var w=window.open('','_blank');
   if(w){w.document.write(html);w.document.close()}
   else toast('\u26A0 Abilita i popup per il PDF','err');
 }
 
-// ── ELIMINA FORNITORE ───────────────────────────────────────────────
 function eliminaFornitore(){
-  if(!editingId){return}
-  var s = getSup(editingId);
-  if(!s){return}
-  // Controlla se ha ordini
-  var ordiniSup = orders.filter(function(o){return o.supplier===s.name});
-  if(ordiniSup.length > 0){
-    toast('\u26A0 '+s.name+' ha '+ordiniSup.length+' ordini registrati — non eliminabile','err');
-    return;
-  }
-  if(!confirm('Eliminare il fornitore "'+s.name+'"? Questa azione non si pu\u00f2 annullare.')) return;
-  suppliers = suppliers.filter(function(x){return x.id!==editingId});
-  sv(KEY_SUP, suppliers);
-  if(currentTab === editingId) currentTab = suppliers[0] ? suppliers[0].id : null;
-  closeSupModal();
-  renderOrder();
+  if(!editingId)return;
+  var s=getSup(editingId);if(!s)return;
+  var ordiniSup=orders.filter(function(o){return o.supplier===s.name});
+  if(ordiniSup.length>0){toast('\u26A0 '+s.name+' ha '+ordiniSup.length+' ordini — non eliminabile','err');return}
+  if(!confirm('Eliminare "'+s.name+'"?'))return;
+  suppliers=suppliers.filter(function(x){return x.id!==editingId});
+  sv(KEY_SUP,suppliers);
+  if(currentTab===editingId)currentTab=suppliers[0]?suppliers[0].id:null;
+  closeSupModal();renderOrder();
   toast('\u2713 Fornitore eliminato','ok');
 }
 
