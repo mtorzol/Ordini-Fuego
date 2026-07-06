@@ -607,7 +607,10 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
           <tbody id="coeff-tbody"></tbody>
         </table>
       </div>
-      <button class="prev-btn secondary" onclick="resetCoefficienti()" style="margin-top:10px;font-size:11px">&#8635; Ripristina coefficienti default</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="prev-btn secondary" onclick="resetCoefficienti()" style="flex:1;font-size:11px">&#8635; Ripristina coefficienti default</button>
+        <button class="prev-btn" onclick="eliminaStorico()" style="flex:1;font-size:11px;background:rgba(220,38,38,.1);color:var(--red);border:1px solid var(--red)">&#128465; Elimina storico</button>
+      </div>
     </div>
 
   </div>
@@ -2274,6 +2277,22 @@ function resetCoefficienti(){
   sv(KEY_COEFF,coefficienti);
   renderCoeffTable();
   toast('\u2713 Coefficienti default ripristinati','ok');
+}
+
+function eliminaStorico(){
+  if(!storico.length){toast('\u26A0 Nessuno storico caricato','err');return}
+  if(!window.confirm('Eliminare tutto lo storico ('+storico.length+' giornate)? I coefficienti torneranno ai valori default.'))return;
+  storico=[];
+  sv(KEY_STOR,storico);
+  coefficienti=JSON.parse(JSON.stringify(coeffDefault));
+  sv(KEY_COEFF,coefficienti);
+  renderCoeffTable();
+  var statsEl=document.getElementById('storico-stats');
+  if(statsEl)statsEl.innerHTML='';
+  // Aggiorna dashboard e consuntivi se aperti
+  if(document.getElementById('screen-dash').classList.contains('active'))renderDash();
+  if(document.getElementById('screen-cons').classList.contains('active'))renderCons();
+  toast('\u2713 Storico eliminato','ok');
 }
 
 function formatDate(d){
