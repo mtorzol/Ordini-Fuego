@@ -2073,6 +2073,8 @@ function caricaStorico(input){
       sv(KEY_STOR,storico);
       calcolaCoefficienti();
       renderStoricoStats();
+      // Aggiorna dashboard se è attiva
+      if(document.getElementById('screen-dash').classList.contains('active')) renderDash();
       toast('\u2713 '+nuove+' nuove giornate, '+aggiornate+' aggiornate (tot. '+storico.length+')','ok');
     }catch(err){
       toast('\u26A0 Errore lettura: ' + err.message,'err');
@@ -2152,6 +2154,18 @@ function formatDate(d){
 }
 
 // ANALISI STORICO IN DASHBOARD
+function filterStorico(period,now){
+  // Filtra storico usando .ts (millisecondi) invece di .date
+  var offset=0;
+  return storico.filter(function(s){
+    if(!s.ts)return true;
+    if(period==='week'){var w=new Date(now);w.setDate(now.getDate()-7);return s.ts>=w.getTime()&&s.ts<=now.getTime()}
+    if(period==='month')return new Date(s.ts).getMonth()===now.getMonth()&&new Date(s.ts).getFullYear()===now.getFullYear();
+    if(period==='year')return new Date(s.ts).getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+
 function renderStoricoAnalysis(){
   var box=document.getElementById('storico-analysis-box');
   var content=document.getElementById('storico-analysis-content');
@@ -2159,8 +2173,11 @@ function renderStoricoAnalysis(){
   if(!storico||!storico.length){box.style.display='none';return}
   var period=document.getElementById('f-period').value;
   var now=new Date();
-  var storFilt=filterByPeriod(storico,period,now);
-  if(!storFilt.length){box.style.display='none';return}
+  var storFilt=filterStorico(period,now);
+  if(!storFilt.length){
+    // Mostra comunque con tutti i dati se il periodo non ha match
+    storFilt=storico;
+  }
   box.style.display='block';
   var totCop=storFilt.reduce(function(a,s){return a+(s.coperti||0)},0);
   var totArr=storFilt.reduce(function(a,s){return a+(s.arrosticini||0)},0);
@@ -2234,7 +2251,8 @@ function aggiungiDipendente(){
 function eliminaDipendente(id){
   var d=dipendenti.find(function(x){return x.id===id});
   if(!d)return;
-  if(!confirm('Eliminare '+d.name+'?'))return;
+  // Conferma inline più affidabile su mobile
+  if(!window.confirm('Eliminare '+d.name+'? Le presenze verranno cancellate.'))return;
   dipendenti=dipendenti.filter(function(x){return x.id!==id});
   delete presenze[id];
   sv(KEY_DIP,dipendenti);sv(KEY_PRES,presenze);
@@ -2306,7 +2324,8 @@ function renderPresenze(){
     var cell=document.createElement('div');
     cell.className='pres-day-cell'+(tipo?' '+tipo:'')+(dateStr===oggi?' today':'');
     cell.textContent=g;
-    if(isFest&&!tipo)cell.style.opacity='0.4';
+    // Festivi cliccabili — solo leggermente distinti visivamente
+    if(isFest&&!tipo)cell.style.background='var(--s3)';
     (function(ds,cell){cell.onclick=function(){presGiornoSel=ds;document.querySelectorAll('.pres-day-cell').forEach(function(c){c.style.outline=''});cell.style.outline='2px solid var(--blue)';var tipoSel=document.getElementById('pres-tipo-sel');if(tipoSel)tipoSel.style.display='block'}})(dateStr,cell);
     grid.appendChild(cell);
   }
