@@ -327,8 +327,20 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .pres-day-cell.pres{background:rgba(0,168,84,.15);border-color:var(--green);color:var(--green)}
 .pres-day-cell.ferie{background:var(--amber-dim);border-color:var(--amber);color:var(--amber)}
 .pres-day-cell.malattia{background:rgba(220,38,38,.1);border-color:var(--red);color:var(--red)}
+.pres-day-cell.assenza{background:rgba(120,120,120,.15);border-color:var(--muted);color:var(--muted)}
+.pres-day-cell.permesso{background:rgba(37,99,235,.12);border-color:var(--blue);color:var(--blue)}
 .pres-day-cell.empty{opacity:0;cursor:default;pointer-events:none}
 .pres-day-cell.today{box-shadow:0 0 0 2px var(--blue)}
+.pres-day-cell.multisel{outline:3px solid var(--green);outline-offset:-1px;transform:scale(1.05)}
+.pres-multi-bar{background:var(--green-glow);border:1px solid var(--green);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:none}
+.pres-multi-bar.show{display:block}
+.pres-multi-count{font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px}
+.pres-multi-btns{display:flex;gap:5px;flex-wrap:wrap}
+.pres-multi-btn{flex:1;min-width:60px;padding:8px 4px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+.pres-report-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pres-mode-toggle{display:flex;gap:6px;margin-bottom:10px}
+.pres-mode-btn{flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.pres-mode-btn.active{border-color:var(--green);color:var(--green);background:var(--green-glow)}
 .pres-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .pres-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
 .pres-legend-dot{width:10px;height:10px;border-radius:3px}
@@ -669,23 +681,48 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
       </div>
       <div class="pres-legend">
         <div class="pres-legend-item"><div class="pres-legend-dot" style="background:rgba(0,168,84,.3);border:1px solid var(--green)"></div>Presente</div>
+        <div class="pres-legend-item"><div class="pres-legend-dot" style="background:rgba(120,120,120,.2);border:1px solid var(--muted)"></div>Assente</div>
         <div class="pres-legend-item"><div class="pres-legend-dot" style="background:var(--amber-dim);border:1px solid var(--amber)"></div>Ferie</div>
         <div class="pres-legend-item"><div class="pres-legend-dot" style="background:rgba(220,38,38,.15);border:1px solid var(--red)"></div>Malattia</div>
+        <div class="pres-legend-item"><div class="pres-legend-dot" style="background:rgba(37,99,235,.15);border:1px solid var(--blue)"></div>Permesso</div>
+      </div>
+      <div class="pres-mode-toggle">
+        <button class="pres-mode-btn active" id="pres-mode-single" onclick="setPresMode('single')">&#9758; Tocco singolo</button>
+        <button class="pres-mode-btn" id="pres-mode-multi" onclick="setPresMode('multi')">&#9776; Selezione multipla</button>
+      </div>
+      <div class="pres-multi-bar" id="pres-multi-bar">
+        <div class="pres-multi-count" id="pres-multi-count">0 giorni selezionati</div>
+        <div class="pres-multi-btns">
+          <button class="pres-multi-btn" style="color:var(--green)" onclick="applicaMulti('pres')">&#10003; Presente</button>
+          <button class="pres-multi-btn" style="color:var(--muted)" onclick="applicaMulti('assenza')">Assente</button>
+          <button class="pres-multi-btn" style="color:var(--amber)" onclick="applicaMulti('ferie')">Ferie</button>
+          <button class="pres-multi-btn" style="color:var(--red)" onclick="applicaMulti('malattia')">Malattia</button>
+          <button class="pres-multi-btn" style="color:var(--blue)" onclick="applicaMulti('permesso')">Permesso</button>
+          <button class="pres-multi-btn" onclick="applicaMulti(null)">&#10005; Pulisci</button>
+        </div>
       </div>
       <div id="pres-summary" class="pres-summary" style="display:none"></div>
       <div id="pres-grid"></div>
       <div id="pres-tipo-sel" style="display:none;margin-bottom:10px">
         <div class="prev-label" style="margin-bottom:6px">Tipo giornata selezionata</div>
-        <div style="display:flex;gap:6px">
-          <button class="prev-btn" id="pres-btn-pres" onclick="setPresenzaTipo('pres')" style="flex:1;font-size:12px">&#10003; Presente</button>
-          <button class="prev-btn secondary" id="pres-btn-ferie" onclick="setPresenzaTipo('ferie')" style="flex:1;font-size:12px;color:var(--amber);border-color:var(--amber)">Ferie</button>
-          <button class="prev-btn secondary" id="pres-btn-mal" onclick="setPresenzaTipo('malattia')" style="flex:1;font-size:12px;color:var(--red);border-color:var(--red)">Malattia</button>
-          <button class="prev-btn secondary" id="pres-btn-clear" onclick="setPresenzaTipo(null)" style="flex:1;font-size:12px">&#10005;</button>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="prev-btn" onclick="setPresenzaTipo('pres')" style="flex:1;min-width:70px;font-size:11px">&#10003; Presente</button>
+          <button class="prev-btn secondary" onclick="setPresenzaTipo('assenza')" style="flex:1;min-width:70px;font-size:11px;color:var(--muted)">Assente</button>
+          <button class="prev-btn secondary" onclick="setPresenzaTipo('ferie')" style="flex:1;min-width:70px;font-size:11px;color:var(--amber);border-color:var(--amber)">Ferie</button>
+          <button class="prev-btn secondary" onclick="setPresenzaTipo('malattia')" style="flex:1;min-width:70px;font-size:11px;color:var(--red);border-color:var(--red)">Malattia</button>
+          <button class="prev-btn secondary" onclick="setPresenzaTipo('permesso')" style="flex:1;min-width:70px;font-size:11px;color:var(--blue);border-color:var(--blue)">Permesso</button>
+          <button class="prev-btn secondary" onclick="setPresenzaTipo(null)" style="flex:1;min-width:50px;font-size:11px">&#10005;</button>
         </div>
       </div>
+      <div class="prev-label" style="margin-top:14px;margin-bottom:8px">Report singolo dipendente</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="prev-btn secondary" onclick="exportPresenzeExcel()" style="flex:1;font-size:12px">&#128229; Export Excel</button>
-        <button class="prev-btn secondary" onclick="exportPresenzePDF()" style="flex:1;font-size:12px">&#128196; Export PDF</button>
+        <button class="prev-btn secondary" onclick="exportPresenzeExcel()" style="flex:1;font-size:12px">&#128229; Excel</button>
+        <button class="prev-btn secondary" onclick="exportPresenzePDF()" style="flex:1;font-size:12px">&#128196; PDF</button>
+      </div>
+      <div class="prev-label" style="margin-top:14px;margin-bottom:8px">Report completo forza lavoro (tutti)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="prev-btn" onclick="exportReportCompletoExcel()" style="flex:1;font-size:12px;background:var(--blue)">&#128202; Excel completo</button>
+        <button class="prev-btn" onclick="exportReportCompletoPDF()" style="flex:1;font-size:12px;background:var(--blue)">&#128203; PDF completo</button>
       </div>
     </div>
 
@@ -2939,6 +2976,25 @@ function renderPresSelettori(){
   }
 }
 
+var presMode='single';
+var presMultiSel=[];
+
+function setPresMode(mode){
+  presMode=mode;
+  presMultiSel=[];
+  document.getElementById('pres-mode-single').classList.toggle('active',mode==='single');
+  document.getElementById('pres-mode-multi').classList.toggle('active',mode==='multi');
+  document.getElementById('pres-multi-bar').className='pres-multi-bar'+(mode==='multi'?' show':'');
+  var tipoSel=document.getElementById('pres-tipo-sel');if(tipoSel)tipoSel.style.display='none';
+  presGiornoSel=null;
+  renderPresenze();
+}
+
+function updateMultiCount(){
+  var el=document.getElementById('pres-multi-count');
+  if(el)el.textContent=presMultiSel.length+' giorni selezionati';
+}
+
 function renderPresenze(){
   var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
   var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
@@ -2954,9 +3010,9 @@ function renderPresenze(){
   var oggi=new Date().toISOString().split('T')[0];
   var grid=document.createElement('div');grid.className='pres-month-grid';
   var giorniShort=['L','M','M','G','V','S','D'];
-  giorniShort.forEach(function(g){var h=document.createElement('div');h.style.cssText='text-align:center;font-size:9px;font-weight:700;color:var(--muted);padding:4px 0;letter-spacing:1px';h.textContent=g;grid.appendChild(h)});
+  giorniShort.forEach(function(g){var hh=document.createElement('div');hh.style.cssText='text-align:center;font-size:9px;font-weight:700;color:var(--muted);padding:4px 0;letter-spacing:1px';hh.textContent=g;grid.appendChild(hh)});
   for(var e=0;e<primoIT;e++){var emp=document.createElement('div');emp.className='pres-day-cell empty';grid.appendChild(emp)}
-  var contatori={pres:0,ferie:0,malattia:0};
+  var contatori={pres:0,assenza:0,ferie:0,malattia:0,permesso:0};
   for(var g=1;g<=giorniMese;g++){
     var dateStr=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
     var tipo=pDip[dateStr]||null;
@@ -2964,15 +3020,58 @@ function renderPresenze(){
     var isFest=(dow===0||dow===6);
     if(tipo)contatori[tipo]=(contatori[tipo]||0)+1;
     var cell=document.createElement('div');
-    cell.className='pres-day-cell'+(tipo?' '+tipo:'')+(dateStr===oggi?' today':'');
+    var isMultiSel=presMultiSel.indexOf(dateStr)>=0;
+    cell.className='pres-day-cell'+(tipo?' '+tipo:'')+(dateStr===oggi?' today':'')+(isMultiSel?' multisel':'');
     cell.textContent=g;
-    // Festivi cliccabili — solo leggermente distinti visivamente
     if(isFest&&!tipo)cell.style.background='var(--s3)';
-    (function(ds,cell){cell.onclick=function(){presGiornoSel=ds;document.querySelectorAll('.pres-day-cell').forEach(function(c){c.style.outline=''});cell.style.outline='2px solid var(--blue)';var tipoSel=document.getElementById('pres-tipo-sel');if(tipoSel)tipoSel.style.display='block'}})(dateStr,cell);
+    (function(ds,cell){
+      cell.onclick=function(){
+        if(presMode==='multi'){
+          var i=presMultiSel.indexOf(ds);
+          if(i>=0)presMultiSel.splice(i,1);
+          else presMultiSel.push(ds);
+          cell.classList.toggle('multisel');
+          updateMultiCount();
+        } else {
+          presGiornoSel=ds;
+          document.querySelectorAll('.pres-day-cell').forEach(function(c){c.style.outline=''});
+          cell.style.outline='2px solid var(--blue)';
+          var tipoSel=document.getElementById('pres-tipo-sel');
+          if(tipoSel)tipoSel.style.display='block';
+        }
+      };
+    })(dateStr,cell);
     grid.appendChild(cell);
   }
   gridEl.innerHTML='';gridEl.appendChild(grid);
-  if(summEl){summEl.style.display='grid';summEl.innerHTML='<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--green)">'+contatori.pres+'</div><div class="pres-kpi-lbl">Presenti</div></div><div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--amber)">'+contatori.ferie+'</div><div class="pres-kpi-lbl">Ferie</div></div><div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--red)">'+(contatori.malattia||0)+'</div><div class="pres-kpi-lbl">Malattia</div></div>'}
+  updateMultiCount();
+  if(summEl){
+    summEl.style.display='grid';
+    summEl.style.gridTemplateColumns='1fr 1fr 1fr 1fr 1fr';
+    summEl.innerHTML=
+      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--green)">'+contatori.pres+'</div><div class="pres-kpi-lbl">Pres.</div></div>'+
+      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--muted)">'+(contatori.assenza||0)+'</div><div class="pres-kpi-lbl">Ass.</div></div>'+
+      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--amber)">'+contatori.ferie+'</div><div class="pres-kpi-lbl">Ferie</div></div>'+
+      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--red)">'+(contatori.malattia||0)+'</div><div class="pres-kpi-lbl">Mal.</div></div>'+
+      '<div class="pres-kpi"><div class="pres-kpi-val" style="color:var(--blue)">'+(contatori.permesso||0)+'</div><div class="pres-kpi-lbl">Perm.</div></div>';
+  }
+}
+
+function applicaMulti(tipo){
+  if(!presMultiSel.length){toast('\u26A0 Seleziona almeno un giorno','err');return}
+  var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
+  if(!dipId){toast('\u26A0 Seleziona il dipendente','err');return}
+  if(!presenze[dipId])presenze[dipId]={};
+  presMultiSel.forEach(function(ds){
+    if(tipo)presenze[dipId][ds]=tipo;
+    else delete presenze[dipId][ds];
+  });
+  sv(KEY_PRES,presenze);
+  var n=presMultiSel.length;
+  presMultiSel=[];
+  renderPresenze();
+  var nomi={pres:'Presente',assenza:'Assente',ferie:'Ferie',malattia:'Malattia',permesso:'Permesso'};
+  toast('\u2713 '+n+' giorni impostati: '+(tipo?nomi[tipo]:'puliti'),'ok');
 }
 
 function setPresenzaTipo(tipo){
@@ -2988,6 +3087,23 @@ function setPresenzaTipo(tipo){
   renderPresenze();
 }
 
+function statoLabel(t){
+  return {pres:'Presente',assenza:'Assente',ferie:'Ferie',malattia:'Malattia',permesso:'Permesso'}[t]||t;
+}
+function statoLettera(t){
+  return {pres:'P',assenza:'A',ferie:'F',malattia:'M',permesso:'PE'}[t]||'';
+}
+function contaStati(pDip,anno,mese){
+  var giorniMese=new Date(anno,mese+1,0).getDate();
+  var c={pres:0,assenza:0,ferie:0,malattia:0,permesso:0};
+  for(var g=1;g<=giorniMese;g++){
+    var ds=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
+    var t=pDip[ds];
+    if(t&&c[t]!==undefined)c[t]++;
+  }
+  return c;
+}
+
 function exportPresenzeExcel(){
   var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
   var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
@@ -2996,25 +3112,31 @@ function exportPresenzeExcel(){
   var dip=dipendenti.find(function(d){return d.id===dipId});if(!dip)return;
   var pDip=presenze[dipId]||{};
   var giorniMese=new Date(anno,mese+1,0).getDate();
+  var giorniNome=['Domenica','Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
   var rows=[];
   rows.push(['Registro Presenze - '+dip.name+(dip.role?' ('+dip.role+')':'')]);
   rows.push([MESI_FULL[mese]+' '+anno]);rows.push([]);
-  rows.push(['Giorno','Data','Giorno settimana','Stato']);
-  var giorniNome=['Domenica','Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
-  var totPres=0,totFerie=0,totMal=0;
+  rows.push(['Giorno','Data','Giorno sett.','Stato']);
   for(var g=1;g<=giorniMese;g++){
-    var dateStr=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
+    var ds=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
     var dow=new Date(anno,mese,g).getDay();
-    var tipo=pDip[dateStr]||(dow===0||dow===6?'Festivo':'Assente');
-    if(tipo==='pres'){totPres++;tipo='Presente'}else if(tipo==='ferie'){totFerie++;tipo='Ferie'}else if(tipo==='malattia'){totMal++;tipo='Malattia'}
-    rows.push([g,dateStr,giorniNome[dow],tipo]);
+    var t=pDip[ds];
+    var stato=t?statoLabel(t):((dow===0||dow===6)?'Festivo':'-');
+    rows.push([g,ds,giorniNome[dow],stato]);
   }
-  rows.push([]);rows.push(['TOTALI','Presenti: '+totPres,'Ferie: '+totFerie,'Malattia: '+totMal]);
-  var csv=rows.map(function(r){return r.map(function(v){return'"'+String(v||'').replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  var cnt=contaStati(pDip,anno,mese);
+  rows.push([]);
+  rows.push(['RIEPILOGO']);
+  rows.push(['Presenti',cnt.pres]);rows.push(['Assenti',cnt.assenza]);
+  rows.push(['Ferie',cnt.ferie]);rows.push(['Malattia',cnt.malattia]);rows.push(['Permessi',cnt.permesso]);
+  var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  scaricaCsv(csv,'presenze_'+dip.name.replace(/\s+/g,'_')+'_'+MESI_FULL[mese]+'_'+anno+'.csv');
+  toast('\u2713 Excel scaricato','ok');
+}
+
+function scaricaCsv(csv,nome){
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='presenze_'+dip.name.replace(/\s+/g,'_')+'_'+MESI_FULL[mese]+'_'+anno+'.csv';
-  a.click();toast('\u2713 Export CSV scaricato','ok');
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;a.click();
 }
 
 function exportPresenzePDF(){
@@ -3023,44 +3145,144 @@ function exportPresenzePDF(){
   var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
   if(!dipId){toast('\u26A0 Seleziona il dipendente','err');return}
   var dip=dipendenti.find(function(d){return d.id===dipId});if(!dip)return;
-  var pDip=presenze[dipId]||{};
+  reportPDF([dip],anno,mese,'Registro Presenze — '+dip.name);
+}
+
+// ── REPORT COMPLETO FORZA LAVORO ──
+function exportReportCompletoExcel(){
+  if(!dipendenti.length){toast('\u26A0 Nessun dipendente','err');return}
+  var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
+  var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
   var giorniMese=new Date(anno,mese+1,0).getDate();
-  var primoIT=(new Date(anno,mese,1).getDay()+6)%7;
-  var giorniNome=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
-  var colori={pres:'#d1fae5',ferie:'#fef3c7',malattia:'#fee2e2',festivo:'#f3f4f6',assente:'#ffffff'};
-  var testiC={pres:'#065f46',ferie:'#92400e',malattia:'#991b1b',festivo:'#9ca3af',assente:'#374151'};
-  var totPres=0,totFerie=0,totMal=0;
-  var cells='';
-  giorniNome.forEach(function(g){cells+='<th style="background:#1e293b;color:#fff;padding:6px;font-size:11px;letter-spacing:1px">'+g+'</th>'});
-  var dayCells='';
-  for(var e=0;e<primoIT;e++)dayCells+='<td></td>';
+  var rows=[];
+  rows.push(['REPORT PRESENZE FORZA LAVORO - '+MESI_FULL[mese]+' '+anno]);
+  rows.push([]);
+  // Header: Dipendente + giorni 1..N + totali
+  var header=['Dipendente','Ruolo'];
+  for(var g=1;g<=giorniMese;g++)header.push(g);
+  header.push('Pres','Ass','Ferie','Mal','Perm');
+  rows.push(header);
+  // Riga per dipendente
+  dipendenti.forEach(function(dip){
+    var pDip=presenze[dip.id]||{};
+    var row=[dip.name,dip.role||''];
+    for(var g=1;g<=giorniMese;g++){
+      var ds=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
+      row.push(pDip[ds]?statoLettera(pDip[ds]):'');
+    }
+    var cnt=contaStati(pDip,anno,mese);
+    row.push(cnt.pres,cnt.assenza,cnt.ferie,cnt.malattia,cnt.permesso);
+    rows.push(row);
+  });
+  // Riga totali complessivi
+  rows.push([]);
+  var totali={pres:0,assenza:0,ferie:0,malattia:0,permesso:0};
+  dipendenti.forEach(function(dip){
+    var cnt=contaStati(presenze[dip.id]||{},anno,mese);
+    totali.pres+=cnt.pres;totali.assenza+=cnt.assenza;totali.ferie+=cnt.ferie;
+    totali.malattia+=cnt.malattia;totali.permesso+=cnt.permesso;
+  });
+  var totRow=['TOTALE COMPLESSIVO',''];
+  for(var g=1;g<=giorniMese;g++)totRow.push('');
+  totRow.push(totali.pres,totali.assenza,totali.ferie,totali.malattia,totali.permesso);
+  rows.push(totRow);
+  rows.push([]);
+  rows.push(['Legenda: P=Presente A=Assente F=Ferie M=Malattia PE=Permesso']);
+  var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  scaricaCsv(csv,'report_completo_'+MESI_FULL[mese]+'_'+anno+'.csv');
+  toast('\u2713 Report Excel completo scaricato','ok');
+}
+
+function exportReportCompletoPDF(){
+  if(!dipendenti.length){toast('\u26A0 Nessun dipendente','err');return}
+  var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
+  var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
+  reportPDF(dipendenti,anno,mese,'Report Presenze Forza Lavoro');
+}
+
+// Genera PDF orizzontale con griglia mese per uno o più dipendenti
+function reportPDF(listaDip,anno,mese,titolo){
+  var giorniMese=new Date(anno,mese+1,0).getDate();
+  var colori={pres:'#d1fae5',assenza:'#e5e7eb',ferie:'#fef3c7',malattia:'#fee2e2',permesso:'#dbeafe'};
+  var testiC={pres:'#065f46',assenza:'#4b5563',ferie:'#92400e',malattia:'#991b1b',permesso:'#1e40af'};
+
+  // Header colonne giorni
+  var thGiorni='';
   for(var g=1;g<=giorniMese;g++){
-    var dateStr=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
     var dow=new Date(anno,mese,g).getDay();
-    var isFest=(dow===0||dow===6);
-    var tipo=pDip[dateStr]||(isFest?'festivo':'assente');
-    if(tipo==='pres')totPres++;else if(tipo==='ferie')totFerie++;else if(tipo==='malattia')totMal++;
-    var label={pres:'P',ferie:'F',malattia:'M',festivo:'',assente:''}[tipo]||'';
-    dayCells+='<td style="background:'+colori[tipo]+';color:'+testiC[tipo]+';padding:8px 4px;text-align:center;font-weight:700;font-size:13px">'+g+'<br><span style="font-size:9px">'+label+'</span></td>';
-    if((primoIT+g)%7===0)dayCells+='</tr><tr>';
+    var wend=(dow===0||dow===6);
+    thGiorni+='<th style="background:'+(wend?'#334155':'#1e293b')+';color:#fff;padding:3px 2px;font-size:9px;min-width:16px;text-align:center">'+g+'</th>';
   }
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Presenze</title>'
-    +'<style>body{font-family:Arial,sans-serif;padding:20px;color:#1e293b}'
-    +'h1{font-size:18px;margin-bottom:4px}h2{font-size:14px;color:#64748b;font-weight:400;margin-bottom:16px}'
-    +'table{border-collapse:collapse;width:100%}td,th{border:1px solid #e2e8f0}'
-    +'.kpi{display:inline-block;margin:0 10px 16px 0;padding:10px 16px;border-radius:8px;font-size:13px}'
-    +'@media print{button{display:none}}</' + 'style></head><body>'
-    +'<h1>Registro Presenze &mdash; '+dip.name+(dip.role?' ('+dip.role+')':'')+'</h1>'
-    +'<h2>'+MESI_FULL[mese]+' '+anno+'</h2>'
-    +'<div style="margin-bottom:16px">'
-    +'<span class="kpi" style="background:#d1fae5;color:#065f46">Presenti: <strong>'+totPres+'</strong></span>'
-    +'<span class="kpi" style="background:#fef3c7;color:#92400e">Ferie: <strong>'+totFerie+'</strong></span>'
-    +'<span class="kpi" style="background:#fee2e2;color:#991b1b">Malattia: <strong>'+totMal+'</strong></span>'
+  // Righe dipendenti
+  var righe='';
+  var totali={pres:0,assenza:0,ferie:0,malattia:0,permesso:0};
+  listaDip.forEach(function(dip){
+    var pDip=presenze[dip.id]||{};
+    var cells='';
+    for(var g=1;g<=giorniMese;g++){
+      var ds=anno+'-'+String(mese+1).padStart(2,'0')+'-'+String(g).padStart(2,'0');
+      var t=pDip[ds];
+      var dow=new Date(anno,mese,g).getDay();
+      var wend=(dow===0||dow===6);
+      var bg=t?colori[t]:(wend?'#f8fafc':'#fff');
+      var col=t?testiC[t]:'#cbd5e1';
+      cells+='<td style="background:'+bg+';color:'+col+';padding:3px 2px;text-align:center;font-size:9px;font-weight:700;border:1px solid #e2e8f0">'+(t?statoLettera(t):'')+'</td>';
+    }
+    var cnt=contaStati(pDip,anno,mese);
+    totali.pres+=cnt.pres;totali.assenza+=cnt.assenza;totali.ferie+=cnt.ferie;totali.malattia+=cnt.malattia;totali.permesso+=cnt.permesso;
+    righe+='<tr>'
+      +'<td style="padding:4px 8px;font-weight:700;font-size:11px;white-space:nowrap;border:1px solid #e2e8f0;position:sticky;left:0;background:#fff">'+dip.name+'</td>'
+      +cells
+      +'<td style="padding:4px;text-align:center;font-size:10px;font-weight:700;color:#065f46;border:1px solid #e2e8f0">'+cnt.pres+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:10px;color:#4b5563;border:1px solid #e2e8f0">'+cnt.assenza+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:10px;color:#92400e;border:1px solid #e2e8f0">'+cnt.ferie+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:10px;color:#991b1b;border:1px solid #e2e8f0">'+cnt.malattia+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:10px;color:#1e40af;border:1px solid #e2e8f0">'+cnt.permesso+'</td>'
+    +'</tr>';
+  });
+  // Riga totali (solo se più dipendenti)
+  var rigaTot='';
+  if(listaDip.length>1){
+    var emptyCells='';
+    for(var g=1;g<=giorniMese;g++)emptyCells+='<td style="background:#f1f5f9;border:1px solid #e2e8f0"></td>';
+    rigaTot='<tr style="background:#f1f5f9;font-weight:700">'
+      +'<td style="padding:4px 8px;font-size:11px;border:1px solid #e2e8f0;position:sticky;left:0;background:#f1f5f9">TOTALE ('+listaDip.length+' dip.)</td>'
+      +emptyCells
+      +'<td style="padding:4px;text-align:center;font-size:11px;color:#065f46;border:1px solid #e2e8f0">'+totali.pres+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:11px;color:#4b5563;border:1px solid #e2e8f0">'+totali.assenza+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:11px;color:#92400e;border:1px solid #e2e8f0">'+totali.ferie+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:11px;color:#991b1b;border:1px solid #e2e8f0">'+totali.malattia+'</td>'
+      +'<td style="padding:4px;text-align:center;font-size:11px;color:#1e40af;border:1px solid #e2e8f0">'+totali.permesso+'</td>'
+    +'</tr>';
+  }
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report Presenze</title>'
+    +'<style>@page{size:A4 landscape;margin:10mm}body{font-family:Arial,sans-serif;padding:14px;color:#1e293b}'
+    +'h1{font-size:16px;margin-bottom:2px}h2{font-size:12px;color:#64748b;font-weight:400;margin-bottom:12px}'
+    +'table{border-collapse:collapse;width:100%}'
+    +'.legenda{margin-top:12px;font-size:10px;color:#64748b;display:flex;gap:14px;flex-wrap:wrap}'
+    +'.leg-item{display:flex;align-items:center;gap:4px}'
+    +'.leg-box{width:12px;height:12px;border-radius:3px;border:1px solid #cbd5e1}'
+    +'@media print{button{display:none}}</'+'style></head><body>'
+    +'<h1>'+titolo+'</h1>'
+    +'<h2>'+MESI_FULL[mese]+' '+anno+' — Ristorante Fuego Arrosticini</h2>'
+    +'<table><thead><tr>'
+    +'<th style="background:#1e293b;color:#fff;padding:4px 8px;font-size:10px;text-align:left;position:sticky;left:0">Dipendente</th>'
+    +thGiorni
+    +'<th style="background:#065f46;color:#fff;padding:4px;font-size:9px">P</th>'
+    +'<th style="background:#4b5563;color:#fff;padding:4px;font-size:9px">A</th>'
+    +'<th style="background:#92400e;color:#fff;padding:4px;font-size:9px">F</th>'
+    +'<th style="background:#991b1b;color:#fff;padding:4px;font-size:9px">M</th>'
+    +'<th style="background:#1e40af;color:#fff;padding:4px;font-size:9px">PE</th>'
+    +'</tr></thead><tbody>'+righe+rigaTot+'</tbody></table>'
+    +'<div class="legenda">'
+    +'<div class="leg-item"><div class="leg-box" style="background:#d1fae5"></div>P = Presente</div>'
+    +'<div class="leg-item"><div class="leg-box" style="background:#e5e7eb"></div>A = Assente</div>'
+    +'<div class="leg-item"><div class="leg-box" style="background:#fef3c7"></div>F = Ferie</div>'
+    +'<div class="leg-item"><div class="leg-box" style="background:#fee2e2"></div>M = Malattia</div>'
+    +'<div class="leg-item"><div class="leg-box" style="background:#dbeafe"></div>PE = Permesso</div>'
     +'</div>'
-    +'<table><thead><tr>'+cells+'</tr></thead><tbody><tr>'+dayCells+'</tr></tbody></table>'
-    +'<div style="margin-top:16px;font-size:11px;color:#94a3b8">P=Presente &nbsp; F=Ferie &nbsp; M=Malattia</div>'
-    +'<div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px">'
-    +'<p style="font-size:11px;color:#94a3b8">Generato da Fuego Ordini &mdash; '+new Date().toLocaleDateString('it-IT')+'</p></div>'
+    +'<p style="margin-top:14px;font-size:9px;color:#94a3b8">Generato da Fuego Ordini — '+new Date().toLocaleDateString('it-IT')+'</p>'
     +'<scr'+'ipt>window.onload=function(){window.print()}</'+'script>'
     +'</body></html>';
   var w=window.open('','_blank');
