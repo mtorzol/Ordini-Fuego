@@ -453,6 +453,25 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .yoy-delta.up{background:rgba(0,168,84,.12);color:var(--green)}
 .yoy-delta.dn{background:rgba(220,38,38,.1);color:var(--red)}
 
+
+/* INSERIMENTO MANUALE GIORNATA */
+.cons-input-box{background:var(--s1);border:1.5px solid var(--green);border-radius:12px;padding:14px;margin-bottom:14px}
+.cons-input-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.cons-input-title{font-size:12px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:6px}
+.cons-input-toggle{font-size:18px;color:var(--muted);transition:transform .2s}
+.cons-input-toggle.open{transform:rotate(45deg)}
+.cons-input-body{display:none;margin-top:14px}
+.cons-input-body.open{display:block}
+.cons-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cons-input-field{display:flex;flex-direction:column;gap:4px}
+.cons-input-field.full{grid-column:1/-1}
+.cons-input-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cons-input-inp{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;width:100%}
+.cons-input-inp:focus{outline:none;border-color:var(--green)}
+.cons-input-inp.euro{color:var(--green)}
+.cons-input-existing{background:var(--amber-dim);border:1px solid var(--amber);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--amber);margin-bottom:10px;display:none}
+.cons-input-existing.show{display:block}
+
 </style>
 </head>
 <body>
@@ -651,6 +670,48 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 <!-- CONSUNTIVI -->
 <div class="screen" id="screen-cons">
   <div class="cons-wrap">
+
+    <!-- INSERIMENTO MANUALE -->
+    <div class="cons-input-box">
+      <div class="cons-input-header" onclick="toggleConsInput()">
+        <div class="cons-input-title">&#9998; Inserisci dato giornaliero</div>
+        <div class="cons-input-toggle" id="cons-input-toggle">&#65291;</div>
+      </div>
+      <div class="cons-input-body" id="cons-input-body">
+        <div class="cons-input-existing" id="cons-input-existing"></div>
+        <div class="cons-input-grid">
+          <div class="cons-input-field full">
+            <div class="cons-input-label">Data</div>
+            <input class="cons-input-inp" type="date" id="ci-data" onchange="checkGiornoEsistente()">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Coperti</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-coperti">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Incasso € (lordo)</div>
+            <input class="cons-input-inp euro" type="number" min="0" step="0.01" placeholder="0.00" id="ci-incasso">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Arrosticini</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-arrosticini">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Pizze</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-pizze">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Hamburger</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-hamburger">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Tagliate Rosse</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-tagliateR">
+          </div>
+        </div>
+        <button class="prev-btn" onclick="salvaGiornoManuale()">&#10003; Salva giornata</button>
+      </div>
+    </div>
 
     <!-- FILTRI -->
     <div class="cons-filters">
@@ -2986,6 +3047,79 @@ function getMetricVal(s,metric){
   if(metric==='arr_cop') return s.coperti>0?Math.round((s.arrosticini/s.coperti)*100)/100:0;
   if(metric==='inc_cop') return s.coperti>0?Math.round((s.incasso||0)/s.coperti*100)/100:0;
   return s[metric]||0;
+}
+
+function toggleConsInput(){
+  var body=document.getElementById('cons-input-body');
+  var toggle=document.getElementById('cons-input-toggle');
+  if(!body)return;
+  var isOpen=body.classList.toggle('open');
+  if(toggle)toggle.classList.toggle('open',isOpen);
+  if(isOpen){
+    var dataEl=document.getElementById('ci-data');
+    if(dataEl&&!dataEl.value)dataEl.value=new Date().toISOString().split('T')[0];
+  }
+}
+
+function checkGiornoEsistente(){
+  var dataEl=document.getElementById('ci-data');
+  var box=document.getElementById('cons-input-existing');
+  if(!dataEl||!box)return;
+  var data=dataEl.value;
+  if(!data){box.className='cons-input-existing';return}
+  var esistente=storico.find(function(s){return s.data===data});
+  if(esistente){
+    box.className='cons-input-existing show';
+    box.innerHTML='\u26A0 Giornata già presente: '+esistente.coperti+' coperti, '+esistente.arrosticini+' arrosticini'+(esistente.incasso?', €'+esistente.incasso:'')+'. Salvando <strong>sovrascriverai</strong> i dati.';
+    // Precompila i campi con i valori esistenti
+    var map={'ci-coperti':'coperti','ci-incasso':'incasso','ci-arrosticini':'arrosticini','ci-pizze':'pizze','ci-hamburger':'hamburger','ci-tagliateR':'tagliateR'};
+    for(var id in map){
+      var el=document.getElementById(id);
+      if(el&&esistente[map[id]])el.value=esistente[map[id]];
+    }
+  } else {
+    box.className='cons-input-existing';
+  }
+}
+
+function salvaGiornoManuale(){
+  var data=document.getElementById('ci-data').value;
+  if(!data){toast('\u26A0 Inserisci la data','err');return}
+  function val(id){var el=document.getElementById(id);return el?(parseFloat(el.value)||0):0}
+  var coperti=val('ci-coperti');
+  var incasso=val('ci-incasso');
+  var arr=val('ci-arrosticini');
+  // Almeno un dato deve essere presente
+  if(!coperti&&!incasso&&!arr){toast('\u26A0 Inserisci almeno coperti, incasso o arrosticini','err');return}
+  var dObj=new Date(data+'T12:00:00');
+  var rec={
+    data:data,
+    ts:dObj.getTime(),
+    coperti:coperti,
+    arrosticini:arr,
+    pizze:val('ci-pizze'),
+    hamburger:val('ci-hamburger'),
+    tagliateR:val('ci-tagliateR'),
+    tagliateB:0,
+    incasso:incasso,
+    giorno:(dObj.getDay()+6)%7
+  };
+  // Sostituisci o aggiungi
+  var idx=storico.findIndex(function(s){return s.data===data});
+  if(idx>=0)storico[idx]=rec;
+  else storico.push(rec);
+  storico.sort(function(a,b){return b.ts-a.ts});
+  sv(KEY_STOR,storico);
+  calcolaCoefficienti();
+  renderStoricoStats&&renderStoricoStats();
+  // Reset campi
+  ['ci-coperti','ci-incasso','ci-arrosticini','ci-pizze','ci-hamburger','ci-tagliateR'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('cons-input-existing').className='cons-input-existing';
+  // Aggiorna anno/mese disponibili e ridisegna
+  initCons();
+  toast('\u2713 Giornata del '+formatDate(data)+' salvata','ok');
 }
 
 function renderCons(){
