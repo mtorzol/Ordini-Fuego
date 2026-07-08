@@ -787,6 +787,10 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
           <input class="cons-input-inp" type="text" placeholder="es. pioggia, evento..." id="ci-note" style="font-family:inherit">
         </div>
         <button class="prev-btn" onclick="salvaChiusuraSerata()" style="margin-top:12px">&#10003; Salva chiusura serata</button>
+        <div id="prossimo-ordine-box" style="display:none;margin-top:10px;background:var(--green-glow);border:1.5px solid var(--green);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">Serata registrata! Vuoi preparare l'ordine di domani?</div>
+          <button class="prev-btn" onclick="vaiAOrdineDomani()" style="font-size:12px">&#127919; Calcola ordine di domani &rarr;</button>
+        </div>
       </div>
     </div>
 
@@ -854,6 +858,9 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         </select>
       </div>
     </div>
+
+    <!-- CONDIVIDI REPORT -->
+    <button class="prev-btn" onclick="condividiReportConsuntivo()" style="width:100%;margin-bottom:13px;background:var(--green);font-size:12px">&#128228; Condividi report del periodo (WhatsApp / Email)</button>
 
     <!-- KPI PRINCIPALI -->
     <div class="cons-kpis" id="cons-kpis"></div>
@@ -2229,6 +2236,17 @@ function togglePrevGiorno(key, dwIT, btn){
   renderCopertiFields();
 }
 
+function mediaCopertiGiorno(dwIT){
+  // Media coperti storica per il giorno della settimana (ultime 10 occorrenze)
+  var giorni=storico.filter(function(s){return s.giorno===dwIT&&s.coperti>0})
+    .sort(function(a,b){return b.ts-a.ts}).slice(0,10);
+  if(!giorni.length)return null;
+  var media=Math.round(giorni.reduce(function(a,s){return a+s.coperti},0)/giorni.length);
+  var inc=giorni.filter(function(s){return s.incasso>0});
+  var mediaInc=inc.length?Math.round(inc.reduce(function(a,s){return a+s.incasso},0)/inc.length):0;
+  return {media:media,n:giorni.length,mediaInc:mediaInc};
+}
+
 function renderCopertiFields(){
   var el = document.getElementById('prev-coperti-fields');
   if(!el) return;
@@ -2239,9 +2257,13 @@ function renderCopertiFields(){
     var dwIT = prevGiorniSel[key].dwIT;
     var d = new Date(key + 'T12:00:00');
     var lbl = GIORNI_IT[dwIT] + ' ' + d.getDate() + '/' + (d.getMonth()+1);
+    var sugg = mediaCopertiGiorno(dwIT);
+    var suggTxt = sugg ? '<div style="font-size:9.5px;color:var(--green);margin-top:3px;font-weight:600">media '+sugg.media+' cop ('+sugg.n+' '+GIORNI_IT[dwIT].toLowerCase().substring(0,3)+')'+(sugg.mediaInc?' \u2022 \u20AC'+sugg.mediaInc:'')+'</div>' : '';
     html += '<div class="prev-field">'
       + '<div class="prev-label">' + lbl + '</div>'
-      + '<input class="prev-inp" type="number" min="0" placeholder="coperti" id="cop_' + key + '">'
+      + '<input class="prev-inp" type="number" min="0" placeholder="coperti" id="cop_' + key + '"'
+      + (sugg ? ' value="'+sugg.media+'"' : '') + '>'
+      + suggTxt
       + '</div>';
   });
   html += '</div>';
@@ -2805,18 +2827,22 @@ function filterStorico(period,now){
 function renderCruscotto(){
   var el=document.getElementById('cruscotto');if(!el)return;
   var now=new Date();
-  // Settimana corrente vs precedente (basata su storico se presente, altrimenti ordini)
   function weekRange(offset){
     var end=new Date(now);end.setDate(now.getDate()-7*offset);
     var start=new Date(end);start.setDate(end.getDate()-7);
     return {start:start.getTime(),end:end.getTime()};
   }
   var wThis=weekRange(0), wPrev=weekRange(1);
-  // Dati da storico
+  // PUNTO 3: stessa settimana ANNO SCORSO
+  var lyEnd=new Date(now);lyEnd.setFullYear(now.getFullYear()-1);
+  var lyStart=new Date(lyEnd);lyStart.setDate(lyEnd.getDate()-7);
+  var wLastYear={start:lyStart.getTime(),end:lyEnd.getTime()};
   var copThis=0,copPrev=0,arrThis=0,arrPrev=0,incThis=0,incPrev=0;
+  var copLY=0,arrLY=0,incLY=0;
   storico.forEach(function(s){
     if(s.ts>=wThis.start&&s.ts<wThis.end){copThis+=s.coperti||0;arrThis+=s.arrosticini||0;incThis+=s.incasso||0}
     else if(s.ts>=wPrev.start&&s.ts<wPrev.end){copPrev+=s.coperti||0;arrPrev+=s.arrosticini||0;incPrev+=s.incasso||0}
+    if(s.ts>=wLastYear.start&&s.ts<wLastYear.end){copLY+=s.coperti||0;arrLY+=s.arrosticini||0;incLY+=s.incasso||0}
   });
   // Ordini in sospeso
   var pending=orders.filter(function(o){return !o.synced}).length;
@@ -2832,15 +2858,17 @@ function renderCruscotto(){
     return {cls:pct>0?'up':pct<0?'dn':'eq',txt:(pct>0?'▲ +':pct<0?'▼ ':'')+Math.abs(pct)+'%'};
   }
   var tCop=trend(copThis,copPrev), tArr=trend(arrThis,arrPrev);
+  var tCopLY=copLY>0?trend(copThis,copLY):null;
+  var tIncLY=incLY>0?trend(incThis,incLY):null;
   var hasData=copThis>0||copPrev>0||arrThis>0;
 
   var html='<div class="cruscotto-title">📊 Colpo d\'occhio settimanale</div><div class="crusc-grid">';
   if(hasData){
-    html+='<div class="crusc-item"><div class="crusc-val" style="color:var(--green)">'+copThis+'</div><div class="crusc-lbl">Coperti 7gg</div><div class="crusc-trend '+tCop.cls+'">'+tCop.txt+' vs prec.</div></div>';
+    html+='<div class="crusc-item"><div class="crusc-val" style="color:var(--green)">'+copThis+'</div><div class="crusc-lbl">Coperti 7gg</div><div class="crusc-trend '+tCop.cls+'">'+tCop.txt+' vs prec.</div>'+(tCopLY?'<div class="crusc-trend '+tCopLY.cls+'" style="font-size:10px">'+tCopLY.txt+' vs '+(now.getFullYear()-1)+'</div>':'')+'</div>';
     html+='<div class="crusc-item"><div class="crusc-val" style="color:var(--amber)">'+arrThis.toLocaleString('it-IT')+'</div><div class="crusc-lbl">Arrosticini 7gg</div><div class="crusc-trend '+tArr.cls+'">'+tArr.txt+' vs prec.</div></div>';
     if(incThis>0){
       var tInc=trend(incThis,incPrev);
-      html+='<div class="crusc-item"><div class="crusc-val" style="color:var(--green);font-size:16px">€'+Math.round(incThis).toLocaleString('it-IT')+'</div><div class="crusc-lbl">Incasso 7gg</div><div class="crusc-trend '+tInc.cls+'">'+tInc.txt+'</div></div>';
+      html+='<div class="crusc-item"><div class="crusc-val" style="color:var(--green);font-size:16px">€'+Math.round(incThis).toLocaleString('it-IT')+'</div><div class="crusc-lbl">Incasso 7gg</div><div class="crusc-trend '+tInc.cls+'">'+tInc.txt+' vs prec.</div>'+(tIncLY?'<div class="crusc-trend '+tIncLY.cls+'" style="font-size:10px">'+tIncLY.txt+' vs '+(now.getFullYear()-1)+'</div>':'')+'</div>';
     } else {
       html+='<div class="crusc-item"><div class="crusc-val" style="color:var(--blue)">'+pending+'</div><div class="crusc-lbl">Ordini in sospeso</div><div class="crusc-trend eq">da sincronizzare</div></div>';
     }
@@ -3496,6 +3524,31 @@ function getMetricVal(s,metric){
   return s[metric]||0;
 }
 
+function mostraProssimoOrdine(){
+  var box=document.getElementById('prossimo-ordine-box');
+  if(box)box.style.display='block';
+}
+
+function vaiAOrdineDomani(){
+  var box=document.getElementById('prossimo-ordine-box');
+  if(box)box.style.display='none';
+  // Preseleziona domani nella previsione
+  var domani=new Date();domani.setDate(domani.getDate()+1);
+  var key=domani.toISOString().split('T')[0];
+  var dwIT=(domani.getDay()+6)%7;
+  prevGiorniSel={};
+  prevGiorniSel[key]={dwIT:dwIT};
+  showScreen('prev');
+  // Dopo il render, scrolla alla previsione e calcola subito
+  setTimeout(function(){
+    renderPrevGiorni();
+    var sec=document.querySelector('#screen-prev .prev-section');
+    if(sec)sec.scrollIntoView({behavior:'smooth'});
+    // Auto-calcola la stima con i coperti suggeriti
+    setTimeout(function(){calcolaStima()},300);
+  },150);
+}
+
 function toggleConsPaste(){
   var body=document.getElementById('cons-paste-body');
   var toggle=document.getElementById('cons-paste-toggle');
@@ -3754,6 +3807,93 @@ function salvaChiusuraSerata(){
   if(haRim)extra.push('rimanenze');
   if(autoPres>0)extra.push(autoPres+' presenze auto');
   toast('\u2713 Chiusura del '+formatDate(data)+' salvata'+(extra.length?' (+ '+extra.join(', ')+')':''),'ok');
+  // PUNTO 1: proponi il calcolo dell'ordine di domani
+  mostraProssimoOrdine();
+}
+
+function condividiReportConsuntivo(){
+  var data=getConsData().filter(function(s){return s.coperti>0});
+  if(!data.length){toast('\u26A0 Nessun dato per il periodo selezionato','err');return}
+  var anno=document.getElementById('cons-anno')?document.getElementById('cons-anno').value:'';
+  var mese=document.getElementById('cons-mese')?document.getElementById('cons-mese').value:'all';
+  var periodoLbl=(mese!=='all'?MESI_CONS[parseInt(mese)-1]+' ':'')+anno;
+
+  // KPI
+  var totCop=data.reduce(function(a,s){return a+(s.coperti||0)},0);
+  var totArr=data.reduce(function(a,s){return a+(s.arrosticini||0)},0);
+  var totInc=data.reduce(function(a,s){return a+(s.incasso||0)},0);
+  var mediaArrCop=totCop>0?Math.round((totArr/totCop)*100)/100:0;
+  var mediaIncCop=totCop>0?(totInc/totCop):0;
+  var mediaCopGg=Math.round(totCop/data.length);
+  var euro=function(n){return '\u20AC '+Math.round(n).toLocaleString('it-IT')};
+
+  // Tabella mensile
+  var byM={};
+  data.forEach(function(s){
+    var m=parseInt(s.data.substring(5,7));
+    if(!byM[m])byM[m]={nome:MESI_CONS[m-1],coperti:0,arrosticini:0,incasso:0,gg:0};
+    byM[m].gg++;byM[m].coperti+=s.coperti||0;byM[m].arrosticini+=s.arrosticini||0;byM[m].incasso+=s.incasso||0;
+  });
+  var righeM='';
+  Object.keys(byM).sort(function(a,b){return a-b}).forEach(function(m){
+    var bm=byM[m];
+    var ic=bm.coperti>0?(bm.incasso/bm.coperti).toFixed(1).replace('.',','):'-';
+    righeM+='<tr><td>'+bm.nome+'</td><td style="text-align:center">'+bm.gg+'</td>'
+      +'<td style="text-align:right">'+bm.coperti.toLocaleString('it-IT')+'</td>'
+      +'<td style="text-align:right">'+bm.arrosticini.toLocaleString('it-IT')+'</td>'
+      +'<td style="text-align:right">'+(bm.incasso?euro(bm.incasso):'-')+'</td>'
+      +'<td style="text-align:right">'+ic+'</td></tr>';
+  });
+
+  // Top 5 giornate
+  var top5=[].concat(data).sort(function(a,b){return(b.coperti||0)-(a.coperti||0)}).slice(0,5);
+  var righeT='';
+  top5.forEach(function(s,i){
+    var dow=GIORNI_CONS[(new Date(s.data+'T12:00:00').getDay()+6)%7];
+    var nota=notaGiornata(s.data);
+    righeT+='<tr><td>'+(i+1)+'</td><td>'+formatDate(s.data)+(nota?' <em style="color:#2563eb;font-size:10px">('+nota+')</em>':'')+'</td>'
+      +'<td>'+dow+'</td><td style="text-align:right">'+s.coperti+'</td>'
+      +'<td style="text-align:right">'+s.arrosticini+'</td>'
+      +'<td style="text-align:right">'+(s.incasso?euro(s.incasso):'-')+'</td></tr>';
+  });
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report Fuego</title>'
+    +'<style>body{font-family:Arial,sans-serif;padding:20px;color:#1e293b;max-width:800px;margin:0 auto}'
+    +'h1{font-size:20px;margin-bottom:2px}h2{font-size:13px;color:#64748b;font-weight:400;margin-bottom:18px}'
+    +'h3{font-size:13px;margin:20px 0 8px;color:#0f172a;border-bottom:2px solid #00a854;padding-bottom:4px}'
+    +'.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}'
+    +'.kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}'
+    +'.kpi-v{font-size:20px;font-weight:700;color:#00a854}'
+    +'.kpi-l{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:2px}'
+    +'table{border-collapse:collapse;width:100%;font-size:12px}'
+    +'th{background:#1e293b;color:#fff;padding:7px 9px;font-size:10px;text-align:left;letter-spacing:.5px}'
+    +'td{padding:7px 9px;border-bottom:1px solid #e2e8f0}'
+    +'tr:nth-child(even){background:#f8fafc}'
+    +'@media print{button{display:none}}</'+'style></head><body>'
+    +'<h1>&#128293; Fuego Arrosticini — Report Consuntivo</h1>'
+    +'<h2>'+periodoLbl+' \u2022 '+data.length+' giornate \u2022 generato il '+new Date().toLocaleDateString('it-IT')+'</h2>'
+    +'<div class="kpis">'
+    +'<div class="kpi"><div class="kpi-v">'+totCop.toLocaleString('it-IT')+'</div><div class="kpi-l">Coperti</div></div>'
+    +'<div class="kpi"><div class="kpi-v">'+totArr.toLocaleString('it-IT')+'</div><div class="kpi-l">Arrosticini</div></div>'
+    +'<div class="kpi"><div class="kpi-v">'+mediaArrCop+'</div><div class="kpi-l">Arr / Coperto</div></div>'
+    +(totInc>0?'<div class="kpi"><div class="kpi-v">'+euro(totInc)+'</div><div class="kpi-l">Incasso totale</div></div>'
+    +'<div class="kpi"><div class="kpi-v">'+mediaIncCop.toFixed(1).replace('.',',')+'</div><div class="kpi-l">\u20AC / Coperto</div></div>'
+    +'<div class="kpi"><div class="kpi-v">'+mediaCopGg+'</div><div class="kpi-l">Coperti / Giorno</div></div>':'')
+    +'</div>'
+    +'<h3>Riepilogo mensile</h3>'
+    +'<table><thead><tr><th>Mese</th><th style="text-align:center">Gg</th><th style="text-align:right">Coperti</th><th style="text-align:right">Arrosticini</th><th style="text-align:right">Incasso</th><th style="text-align:right">\u20AC/Cop</th></tr></thead><tbody>'+righeM+'</tbody></table>'
+    +'<h3>Top 5 giornate</h3>'
+    +'<table><thead><tr><th>#</th><th>Data</th><th>Giorno</th><th style="text-align:right">Coperti</th><th style="text-align:right">Arrost.</th><th style="text-align:right">Incasso</th></tr></thead><tbody>'+righeT+'</tbody></table>'
+    +'<p style="margin-top:20px;font-size:10px;color:#94a3b8">Report generato da Fuego Ordini</p>'
+    +'</body></html>';
+
+  var blob=new Blob([html],{type:'text/html'});
+  condividiFile(blob,'report_fuego_'+periodoLbl.replace(/\s+/g,'_')+'.html','Report Fuego '+periodoLbl);
+}
+
+function notaGiornata(data){
+  var r=rimanenze.find(function(x){return x.data===data});
+  return r&&r.note?r.note:'';
 }
 
 function renderCons(){
@@ -3819,11 +3959,12 @@ function renderCons(){
   if(recEl&&aperti.length){
     var best=aperti.reduce(function(a,b){return(b.coperti||0)>(a.coperti||0)?b:a},aperti[0]);
     var bestMetric=aperti.reduce(function(a,b){return getMetricVal(b,metric)>getMetricVal(a,metric)?b:a},aperti[0]);
+    var notaBest=notaGiornata(best.data);
     recEl.innerHTML=
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px">'+
       '<div class="cons-record"><div class="cons-record-date">&#127942; Record coperti</div>'+
         '<div class="cons-record-val">'+best.coperti+'</div>'+
-        '<div class="cons-record-sub">'+formatDate(best.data)+' — '+best.arrosticini+' arrosticini</div></div>'+
+        '<div class="cons-record-sub">'+formatDate(best.data)+' — '+best.arrosticini+' arrosticini'+(notaBest?'<br>&#128172; '+notaBest:'')+'</div></div>'+
       '<div class="cons-record"><div class="cons-record-date">&#128293; Miglior '+metricLabel+'</div>'+
         '<div class="cons-record-val">'+getMetricVal(bestMetric,metric)+'</div>'+
         '<div class="cons-record-sub">'+formatDate(bestMetric.data)+'</div></div>'+
@@ -3941,18 +4082,17 @@ function renderCons(){
   var top10El=document.getElementById('cons-top10');
   if(top10El&&aperti.length){
     var sorted=[].concat(aperti).sort(function(a,b){return(b.coperti||0)-(a.coperti||0)}).slice(0,10);
-    var html='<thead><tr><th>#</th><th>Data</th><th>Giorno</th><th>Coperti</th><th>Arrost.</th><th>Arr/Cop</th><th>Pizze</th></tr></thead><tbody>';
+    var html='<thead><tr><th>#</th><th>Data</th><th>Giorno</th><th>Coperti</th><th>Arrost.</th><th>Incasso</th></tr></thead><tbody>';
     sorted.forEach(function(s,i){
-      var ac=s.coperti>0?Math.round(s.arrosticini/s.coperti*100)/100:0;
       var dow=GIORNI_CONS[(new Date(s.data+'T12:00:00').getDay()+6)%7];
+      var nota=notaGiornata(s.data);
       html+='<tr>'
         +'<td style="color:var(--amber);font-weight:700">'+(i+1)+'</td>'
-        +'<td>'+formatDate(s.data)+'</td>'
+        +'<td>'+formatDate(s.data)+(nota?'<div style="font-size:9px;color:var(--blue);font-family:inherit;margin-top:2px">&#128172; '+nota+'</div>':'')+'</td>'
         +'<td style="font-family:inherit">'+dow.substring(0,3)+'</td>'
         +'<td class="'+(i===0?'best':'')+'">'+s.coperti+'</td>'
         +'<td>'+s.arrosticini+'</td>'
-        +'<td>'+ac+'</td>'
-        +'<td>'+(s.pizze||0)+'</td>'
+        +'<td>'+(s.incasso?'€'+Math.round(s.incasso).toLocaleString('it-IT'):'-')+'</td>'
       +'</tr>';
     });
     html+='</tbody>';
