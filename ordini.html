@@ -924,7 +924,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
   <div class="dash-wrap">
     <div class="sync-box" style="border-color:var(--amber)">
       <h3>&#128190; Backup &amp; Ripristino</h3>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Esporta un backup JSON completo. Importalo su qualsiasi browser per ripristinare tutto.</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Backup COMPLETO: fornitori, ordini, storico+incassi, rimanenze, coefficienti, dipendenti e presenze. Importalo su qualsiasi browser per ripristinare tutto.</div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <button class="btn-sync" onclick="exportBackup()" style="background:var(--amber);flex:1">&#11015; Esporta backup</button>
         <label class="btn-sync" style="background:var(--s2);color:var(--text);border:1px solid var(--border2);flex:1;text-align:center;cursor:pointer">
@@ -1743,7 +1743,20 @@ function copyGas(el){
 
 // BACKUP
 function exportBackup(){
-  var b={version:2,exported:new Date().toISOString(),suppliers:suppliers,orders:orders,theme:theme,gasUrl:gasUrl,gasEmail:ld('gas_email','')||''};
+  var b={
+    version:3,
+    exported:new Date().toISOString(),
+    suppliers:suppliers,
+    orders:orders,
+    rimanenze:rimanenze,
+    storico:storico,
+    coefficienti:coefficienti,
+    dipendenti:dipendenti,
+    presenze:presenze,
+    theme:theme,
+    gasUrl:gasUrl,
+    gasEmail:ld('gas_email','')||''
+  };
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(b,null,2)],{type:'application/json'}));
   a.download='ordini_backup_'+new Date().toLocaleDateString('it-IT').replace(/\//g,'-')+'.json';
@@ -1758,6 +1771,11 @@ function importBackup(input){
       var status=document.getElementById('backup-status');
       if(data.suppliers&&data.orders){
         suppliers=data.suppliers;orders=data.orders;
+        if(data.rimanenze){rimanenze=data.rimanenze;sv(KEY_RIM,rimanenze)}
+        if(data.storico){storico=data.storico;sv(KEY_STOR,storico)}
+        if(data.coefficienti){coefficienti=data.coefficienti;sv(KEY_COEFF,coefficienti)}
+        if(data.dipendenti){dipendenti=data.dipendenti;sv(KEY_DIP,dipendenti)}
+        if(data.presenze){presenze=data.presenze;sv(KEY_PRES,presenze)}
         if(data.theme){theme=data.theme;applyTheme()}
         if(data.gasUrl){gasUrl=data.gasUrl;sv('gas_url',gasUrl)}
         if(data.gasEmail)sv('gas_email',data.gasEmail);
@@ -1766,7 +1784,7 @@ function importBackup(input){
       else{toast('\u2717 Formato non riconosciuto','err');return}
       suppliers.forEach(function(s){if(!session[s.id])session[s.id]={day:null,timeOn:false,time:'',note:'',waSent:false}});
       sv(KEY_SUP,suppliers);sv(KEY_ORDERS,orders);
-      var msg='\u2713 Ripristinati '+suppliers.length+' fornitori e '+orders.length+' ordini';
+      var msg='\u2713 Ripristinato tutto: '+suppliers.length+' fornitori, '+orders.length+' ordini, '+storico.length+' giornate storico, '+dipendenti.length+' dipendenti';
       status.innerHTML='<span style="color:var(--green)">'+msg+'</span>';
       toast(msg,'ok');renderOrder();updatePendingBadge();renderPending();
     }catch(err){toast('\u2717 Errore: '+err.message,'err')}
@@ -2137,27 +2155,27 @@ function salvaRimanenze(){
     var inp = document.getElementById('rim_' + art.id);
     rec.articoli[art.id] = parseFloat(inp ? inp.value : 0) || 0;
   });
-  // Aggiorna storico interno (per coefficienti)
+  // Aggiorna storico: SOLO i coperti (dato certo della serata).
+  // I consumi NON sono le rimanenze — restano 0 finché non inseriti
+  // dal consuntivo o dal CSV. Questo evita di corrompere i coefficienti.
   if(rec.coperti > 0){
-    var storRec = {
-      data: data, ts: rec.ts,
-      coperti: rec.coperti,
-      giorno: (new Date(data).getDay() + 6) % 7,
-      arrosticini: rec.articoli.arrosticini || 0,
-      pizze: rec.articoli.pizze || 0,
-      hamburger: rec.articoli.hamburger || 0,
-      tagliateR: rec.articoli.tagliateR || 0,
-      tagliateB: rec.articoli.tagliateB || 0
-    };
-    // Aggiunge allo storico se non esiste già
-    var existsInStor = false;
-    for(var si=0; si<storico.length; si++){if(storico[si].data===data){existsInStor=true;break}}
-    if(!existsInStor){
-      storico.push(storRec);
-      storico.sort(function(a,b){return b.ts-a.ts});
-      sv(KEY_STOR, storico);
-      calcolaCoefficienti();
+    var foundStor = null;
+    for(var si=0; si<storico.length; si++){if(storico[si].data===data){foundStor=storico[si];break}}
+    if(foundStor){
+      // Data già presente: aggiorna solo i coperti se mancanti, non toccare i consumi
+      if(!foundStor.coperti) foundStor.coperti = rec.coperti;
+    } else {
+      // Nuova data: crea record con soli coperti, consumi a 0 (arriveranno dal consuntivo)
+      storico.push({
+        data: data, ts: rec.ts,
+        coperti: rec.coperti,
+        giorno: (new Date(data).getDay() + 6) % 7,
+        arrosticini: 0, pizze: 0, hamburger: 0, tagliateR: 0, tagliateB: 0, incasso: 0
+      });
     }
+    storico.sort(function(a,b){return b.ts-a.ts});
+    sv(KEY_STOR, storico);
+    calcolaCoefficienti();
   }
   rimanenze = rimanenze.filter(function(r){return r.data !== data});
   rimanenze.push(rec);
@@ -2729,6 +2747,23 @@ function verificaDatiStorico(){
   var viste={},dupli=0;
   validi.forEach(function(s){if(viste[s.data])dupli++;else viste[s.data]=true});
 
+  // Rileva record sospetti dal vecchio bug (rimanenze salvate come consumi)
+  var sospetti=validi.filter(function(s){
+    return s.coperti>50 && s.arrosticini>0 && s.arrosticini<s.coperti;
+  });
+  if(corrotti.length===0&&dupli===0&&sospetti.length>0){
+    var msgS='\u26A0 Trovati '+sospetti.length+' record SOSPETTI:\n(coperti alti ma arrosticini bassissimi — probabile vecchio bug rimanenze)\n\n';
+    sospetti.slice(0,5).forEach(function(s){msgS+='\u2022 '+formatDate(s.data)+': '+s.coperti+' cop ma solo '+s.arrosticini+' arr\n'});
+    if(sospetti.length>5)msgS+='... e altri '+(sospetti.length-5)+'\n';
+    msgS+='\nVuoi AZZERARE i consumi di questi record? (i coperti e gli incassi restano)';
+    if(window.confirm(msgS)){
+      sospetti.forEach(function(s){s.arrosticini=0;s.pizze=0;s.hamburger=0;s.tagliateR=0;s.tagliateB=0});
+      sv(KEY_STOR,storico);
+      calcolaCoefficienti();
+      toast('\u2713 '+sospetti.length+' record ripuliti','ok');
+      return;
+    }
+  }
   if(corrotti.length===0&&dupli===0){
     // Mostra riepilogo anni/mesi presenti
     var byYM={};
