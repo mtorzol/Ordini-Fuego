@@ -497,6 +497,11 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .cons-paste-preview{background:var(--s3);border-radius:8px;padding:9px 11px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);max-height:100px;overflow-y:auto;margin-bottom:10px;display:none;line-height:1.7}
 .cons-paste-preview.show{display:block}
 
+
+.turno-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.turno-chip{padding:7px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--s2);font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;font-family:inherit}
+.turno-chip.sel{border-color:var(--green);background:var(--green-glow);color:var(--green)}
+
 </style>
 </head>
 <body>
@@ -549,41 +554,6 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 <div class="screen" id="screen-prev">
   <div class="prev-wrap">
 
-    <!-- RIMANENZE SERALI -->
-    <div class="prev-section">
-      <h3><span>&#127769;</span> Rimanenze serali</h3>
-      <div class="prev-grid">
-        <div class="prev-field full">
-          <div class="prev-label">Data serata</div>
-          <input class="prev-inp" type="date" id="rim-data">
-        </div>
-      </div>
-      <!-- coperti effettivi -->
-      <div class="rim-extra-row">
-        <div>
-          <div class="rim-label">Coperti effettivi</div>
-          <input class="prev-inp" type="number" min="0" placeholder="es. 65" id="rim-coperti">
-        </div>
-        <div>
-          <div class="rim-label">Turno dipendente</div>
-          <input class="prev-inp" type="text" placeholder="es. Mario, Luigi" id="rim-turno" style="font-family:inherit">
-        </div>
-      </div>
-      <!-- articoli rimasti -->
-      <div id="rim-articoli"></div>
-      <!-- note serata -->
-      <div class="rim-full-row">
-        <div class="rim-label">Note serata</div>
-        <textarea class="rim-textarea" id="rim-note" placeholder="es. evento privato, pioggia, forno rotto..."></textarea>
-      </div>
-      <button class="prev-btn" onclick="salvaRimanenze()" style="margin-top:4px">&#10003; Salva serata</button>
-      <!-- storico ultime serate -->
-      <div style="margin-top:14px">
-        <div class="prev-label" style="margin-bottom:8px">Ultime serate registrate</div>
-        <div class="rim-storico-list" id="rim-storico-list"></div>
-      </div>
-    </div>
-
     <!-- PREVISIONE ORDINE -->
     <div class="prev-section">
       <h3><span>&#127919;</span> Previsione ordine</h3>
@@ -619,23 +589,9 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 
     <!-- STORICO / COEFFICIENTI -->
     <div class="prev-section">
-      <h3><span>&#128200;</span> Storico vendite &amp; Coefficienti</h3>
-      <label class="storico-upload" id="storico-drop">
-        <div class="storico-upload-icon">&#128229;</div>
-        <div class="storico-upload-txt">
-          Carica Excel/CSV storico completo<br>
-          <small>Data, Coperti, Arrosticini, Pizze, Hamburger, TagliateR, TagliateB, <strong>Incasso</strong></small>
-        </div>
-        <input type="file" accept=".csv,.xlsx,.xls" onchange="caricaStorico(this)" style="display:none">
-      </label>
-      <label class="storico-upload" id="incassi-drop" style="border-color:var(--green);padding:14px">
-        <div class="storico-upload-icon">&#128181;</div>
-        <div class="storico-upload-txt">
-          Carica <strong>solo incassi</strong><br>
-          <small>Due colonne: Data, Incasso (lordo scontrino)</small>
-        </div>
-        <input type="file" accept=".csv,.xlsx,.xls" onchange="caricaIncassi(this)" style="display:none">
-      </label>
+      <h3><span>&#128200;</span> Coefficienti previsione</h3>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Calcolati automaticamente dallo storico. Per caricare dati vai in <strong>Consuntivi</strong>.</div>
+      
       <div id="storico-stats"></div>
       <div style="margin-top:10px">
         <div class="prev-label" style="margin-bottom:8px">Coefficienti (articoli per coperto)</div>
@@ -662,6 +618,14 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 <!-- DIPENDENTI -->
     <div class="prev-section">
       <h3><span>&#128100;</span> Dipendenti &amp; Presenze</h3>
+      <!-- anno di riferimento -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;background:var(--s2);border-radius:10px;padding:10px 12px">
+        <div style="flex:1">
+          <div class="prev-label" style="margin-bottom:2px">Anno di riferimento</div>
+          <div style="font-size:10px;color:var(--muted)">I dipendenti appartengono all'anno selezionato</div>
+        </div>
+        <select class="prev-inp" id="dip-anno-rif" style="width:90px;font-family:inherit;font-weight:700" onchange="renderDipList();renderPresSelettori();renderPresenze()"></select>
+      </div>
       <!-- lista dipendenti -->
       <div class="prev-label" style="margin-bottom:8px">Gestione dipendenti</div>
       <div id="dip-list" style="margin-bottom:12px"></div>
@@ -669,6 +633,19 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         <input class="prev-inp" type="text" id="dip-new-name" placeholder="Nome dipendente" style="flex:1;font-family:inherit">
         <input class="prev-inp" type="text" id="dip-new-role" placeholder="Ruolo" style="width:100px;font-family:inherit">
         <button class="prev-btn" onclick="aggiungiDipendente()" style="width:42px;flex-shrink:0">&#65291;</button>
+      </div>
+      <!-- modal modifica dipendente inline -->
+      <div id="dip-edit-box" style="display:none;background:var(--amber-dim);border:1px solid var(--amber);border-radius:10px;padding:12px;margin-bottom:14px">
+        <div class="prev-label" style="margin-bottom:8px;color:var(--amber)">Modifica dipendente</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="prev-inp" type="text" id="dip-edit-name" placeholder="Nome" style="flex:2;min-width:120px;font-family:inherit">
+          <input class="prev-inp" type="text" id="dip-edit-role" placeholder="Ruolo" style="flex:1;min-width:80px;font-family:inherit">
+          <input class="prev-inp" type="number" id="dip-edit-anno" placeholder="Anno" style="width:80px;font-family:inherit">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="prev-btn" onclick="salvaModificaDipendente()" style="flex:1;font-size:12px">&#10003; Salva</button>
+          <button class="prev-btn secondary" onclick="chiudiModificaDipendente()" style="flex:1;font-size:12px">Annulla</button>
+        </div>
       </div>
       <!-- presenze mensili -->
       <div class="prev-label" style="margin-bottom:8px">Registro presenze</div>
@@ -715,15 +692,19 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         </div>
       </div>
       <div class="prev-label" style="margin-top:14px;margin-bottom:8px">Report singolo dipendente</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="prev-btn secondary" onclick="exportPresenzeExcel()" style="flex:1;font-size:12px">&#128229; Excel</button>
-        <button class="prev-btn secondary" onclick="exportPresenzePDF()" style="flex:1;font-size:12px">&#128196; PDF</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="prev-btn secondary" onclick="exportPresenzeExcel()" style="flex:1;min-width:70px;font-size:11px">&#128229; Excel</button>
+        <button class="prev-btn secondary" onclick="exportPresenzePDF()" style="flex:1;min-width:70px;font-size:11px">&#128196; PDF</button>
+        <button class="prev-btn secondary" onclick="exportPresenzeExcel(true)" style="flex:1;min-width:70px;font-size:11px;color:var(--green);border-color:var(--green)">&#128228; Condividi</button>
       </div>
       <div class="prev-label" style="margin-top:14px;margin-bottom:8px">Report completo forza lavoro (tutti)</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="prev-btn" onclick="exportReportCompletoExcel()" style="flex:1;font-size:12px;background:var(--blue)">&#128202; Excel completo</button>
-        <button class="prev-btn" onclick="exportReportCompletoPDF()" style="flex:1;font-size:12px;background:var(--blue)">&#128203; PDF completo</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="prev-btn" onclick="exportReportCompletoExcel()" style="flex:1;min-width:80px;font-size:11px;background:var(--blue)">&#128202; Excel</button>
+        <button class="prev-btn" onclick="exportReportCompletoPDF()" style="flex:1;min-width:80px;font-size:11px;background:var(--blue)">&#128203; PDF</button>
+        <button class="prev-btn" onclick="exportReportCompletoExcel(true)" style="flex:1;min-width:80px;font-size:11px;background:var(--green)">&#128228; Condividi Excel</button>
+        <button class="prev-btn" onclick="exportReportCompletoPDF(true)" style="flex:1;min-width:80px;font-size:11px;background:var(--green)">&#128228; Condividi report</button>
       </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6">&#128161; <strong>Condividi</strong> apre il menu del telefono: WhatsApp, Email, Drive... Il report condiviso è un file HTML apribile ovunque e stampabile in PDF.</div>
     </div>
 
       </div>
@@ -733,27 +714,31 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 <div class="screen" id="screen-cons">
   <div class="cons-wrap">
 
-    <!-- INSERIMENTO MANUALE -->
+    <!-- CHIUSURA SERATA (form unico) -->
     <div class="cons-input-box">
       <div class="cons-input-header" onclick="toggleConsInput()">
-        <div class="cons-input-title">&#9998; Inserisci dato giornaliero</div>
+        <div class="cons-input-title">&#127769; Chiusura serata</div>
         <div class="cons-input-toggle" id="cons-input-toggle">&#65291;</div>
       </div>
       <div class="cons-input-body" id="cons-input-body">
         <div class="cons-input-existing" id="cons-input-existing"></div>
         <div class="cons-input-grid">
           <div class="cons-input-field full">
-            <div class="cons-input-label">Data</div>
+            <div class="cons-input-label">Data serata</div>
             <input class="cons-input-inp" type="date" id="ci-data" onchange="checkGiornoEsistente()">
           </div>
           <div class="cons-input-field">
-            <div class="cons-input-label">Coperti</div>
+            <div class="cons-input-label">Coperti effettivi</div>
             <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-coperti">
           </div>
           <div class="cons-input-field">
             <div class="cons-input-label">Incasso € (lordo)</div>
             <input class="cons-input-inp euro" type="number" min="0" step="0.01" placeholder="0.00" id="ci-incasso">
           </div>
+        </div>
+
+        <div class="cons-input-label" style="margin:10px 0 6px;color:var(--amber)">Consumi della serata (venduto)</div>
+        <div class="cons-input-grid">
           <div class="cons-input-field">
             <div class="cons-input-label">Arrosticini</div>
             <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-arrosticini">
@@ -771,7 +756,37 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
             <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-tagliateR">
           </div>
         </div>
-        <button class="prev-btn" onclick="salvaGiornoManuale()">&#10003; Salva giornata</button>
+
+        <div class="cons-input-label" style="margin:10px 0 6px;color:var(--blue)">Rimanenze in frigo (per la previsione ordine)</div>
+        <div class="cons-input-grid">
+          <div class="cons-input-field">
+            <div class="cons-input-label">Arrosticini rim.</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-rim-arrosticini">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Pizze rim.</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-rim-pizze">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Hamburger rim.</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-rim-hamburger">
+          </div>
+          <div class="cons-input-field">
+            <div class="cons-input-label">Tagliate R. rim.</div>
+            <input class="cons-input-inp" type="number" min="0" placeholder="0" id="ci-rim-tagliateR">
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="cons-input-label">Turno — chi lavorava stasera <span style="color:var(--green);text-transform:none;letter-spacing:0">(auto-presenza)</span></div>
+          <div class="turno-chips" id="ci-turno-chips"></div>
+          <input type="hidden" id="ci-turno">
+        </div>
+        <div class="cons-input-field full" style="margin-top:10px">
+          <div class="cons-input-label">Note serata</div>
+          <input class="cons-input-inp" type="text" placeholder="es. pioggia, evento..." id="ci-note" style="font-family:inherit">
+        </div>
+        <button class="prev-btn" onclick="salvaChiusuraSerata()" style="margin-top:12px">&#10003; Salva chiusura serata</button>
       </div>
     </div>
 
@@ -791,6 +806,27 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         <div class="cons-paste-preview" id="cons-paste-preview"></div>
         <button class="prev-btn" onclick="importConsPaste()">&#10003; Importa righe</button>
       </div>
+    </div>
+
+    <!-- UPLOAD FILE -->
+    <div class="cons-section" style="padding:12px">
+      <div class="cons-section-title" style="margin-bottom:10px">&#128229; Carica da file</div>
+      <label class="storico-upload" id="storico-drop">
+        <div class="storico-upload-icon">&#128229;</div>
+        <div class="storico-upload-txt">
+          Carica Excel/CSV storico completo<br>
+          <small>Data, Coperti, Arrosticini, Pizze, Hamburger, TagliateR, TagliateB, <strong>Incasso</strong></small>
+        </div>
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="caricaStorico(this)" style="display:none">
+      </label>
+      <label class="storico-upload" id="incassi-drop" style="border-color:var(--green);padding:14px">
+        <div class="storico-upload-icon">&#128181;</div>
+        <div class="storico-upload-txt">
+          Carica <strong>solo incassi</strong><br>
+          <small>Due colonne: Data, Incasso (lordo scontrino)</small>
+        </div>
+        <input type="file" accept=".csv,.xlsx,.xls" onchange="caricaIncassi(this)" style="display:none">
+      </label>
     </div>
 
     <!-- FILTRI -->
@@ -1461,8 +1497,17 @@ function buildMsg(s){
 function checkOrdineAnomalo(s,st){
   // Confronta gli articoli chiave con la media storica del giorno di consegna
   if(!storico.length) return true; // Nessuno storico, nessun controllo
-  // Mappa articolo fornitore → chiave storico
-  var mappaCheck={'FATTI A MANO':'arrosticini','HAMBURGER':'hamburger','TAGLIATE ROSSE DA 300 GR':'tagliateR','TAGLIATE CARNE BIANCA':'tagliateB'};
+  // Matching fuzzy: riconosce gli articoli dalle parole chiave nel nome
+  // (robusto ai rename: 'FATTI A MANO'→'ARROSTICINI FATTI A MANO' funziona comunque)
+  function chiaveArticolo(nome){
+    var n=nome.toUpperCase();
+    if(n.indexOf('ARROSTIC')>=0||n.indexOf('FATTI A MANO')>=0||n.indexOf('SPIED')>=0)return 'arrosticini';
+    if(n.indexOf('HAMBURG')>=0||n.indexOf('BURGER')>=0)return 'hamburger';
+    if(n.indexOf('TAGLIAT')>=0&&(n.indexOf('ROSS')>=0||n.indexOf('300')>=0))return 'tagliateR';
+    if(n.indexOf('TAGLIAT')>=0&&n.indexOf('BIANC')>=0)return 'tagliateB';
+    if(n.indexOf('PIZZ')>=0)return 'pizze';
+    return null;
+  }
   // Determina il giorno della settimana della consegna
   var dowMap={'LUNEDI':0,'MARTEDI':1,'MERCOLEDI':2,'GIOVEDI':3,'VENERDI':4,'SABATO':5,'DOMENICA':6};
   var dwTarget=dowMap[st.day];
@@ -1475,7 +1520,7 @@ function checkOrdineAnomalo(s,st){
   var anomalie=[];
   s.items.forEach(function(it){
     if(it.qty<=0) return;
-    var chiave=mappaCheck[it.name];
+    var chiave=chiaveArticolo(it.name);
     if(!chiave||!coeff[chiave]) return;
     // Stima attesa = mediaCop * coeff
     var atteso=Math.round(mediaCop*coeff[chiave]);
@@ -2103,11 +2148,7 @@ var STORICO_EMBED = [{"data":"2025-06-01","ts":1748736000000,"coperti":0,"arrost
 var prevGiorniSel = {};
 
 function initPrev(){
-  // Imposta data oggi nelle rimanenze
   var today = new Date().toISOString().split('T')[0];
-  var rimData = document.getElementById('rim-data');
-  if(rimData && !rimData.value) rimData.value = today;
-
   // Imposta date discrepanze (ultimo mese)
   var discDal = document.getElementById('disc-dal');
   var discAl  = document.getElementById('disc-al');
@@ -2117,7 +2158,6 @@ function initPrev(){
   }
   if(discAl && !discAl.value) discAl.value = today;
 
-  renderRimArticoli();
   renderPrevGiorni();
   renderCoeffTable();
   renderStoricoList();
@@ -2125,74 +2165,6 @@ function initPrev(){
 }
 
 // ── RIMANENZE ───────────────────────────────────────────────────────
-function renderRimArticoli(){
-  var html = '';
-  PREV_ARTICOLI.forEach(function(art){
-    html += '<div class="rim-art-row">'
-      + '<div class="rim-art-name">' + art.label + '</div>'
-      + '<input class="rim-art-inp" type="number" min="0" placeholder="0" id="rim_' + art.id + '">'
-      + '</div>';
-  });
-  var el = document.getElementById('rim-articoli');
-  if(el) el.innerHTML = html;
-}
-
-function salvaRimanenze(){
-  var data = document.getElementById('rim-data').value;
-  if(!data){toast('⚠ Inserisci la data','err');return}
-  var copertiEl = document.getElementById('rim-coperti');
-  var turnoEl   = document.getElementById('rim-turno');
-  var noteEl    = document.getElementById('rim-note');
-  var rec = {
-    data: data,
-    ts: new Date(data).getTime(),
-    coperti: parseFloat(copertiEl ? copertiEl.value : 0) || 0,
-    turno: turnoEl ? turnoEl.value.trim() : '',
-    note: noteEl ? noteEl.value.trim() : '',
-    articoli: {}
-  };
-  PREV_ARTICOLI.forEach(function(art){
-    var inp = document.getElementById('rim_' + art.id);
-    rec.articoli[art.id] = parseFloat(inp ? inp.value : 0) || 0;
-  });
-  // Aggiorna storico: SOLO i coperti (dato certo della serata).
-  // I consumi NON sono le rimanenze — restano 0 finché non inseriti
-  // dal consuntivo o dal CSV. Questo evita di corrompere i coefficienti.
-  if(rec.coperti > 0){
-    var foundStor = null;
-    for(var si=0; si<storico.length; si++){if(storico[si].data===data){foundStor=storico[si];break}}
-    if(foundStor){
-      // Data già presente: aggiorna solo i coperti se mancanti, non toccare i consumi
-      if(!foundStor.coperti) foundStor.coperti = rec.coperti;
-    } else {
-      // Nuova data: crea record con soli coperti, consumi a 0 (arriveranno dal consuntivo)
-      storico.push({
-        data: data, ts: rec.ts,
-        coperti: rec.coperti,
-        giorno: (new Date(data).getDay() + 6) % 7,
-        arrosticini: 0, pizze: 0, hamburger: 0, tagliateR: 0, tagliateB: 0, incasso: 0
-      });
-    }
-    storico.sort(function(a,b){return b.ts-a.ts});
-    sv(KEY_STOR, storico);
-    calcolaCoefficienti();
-  }
-  rimanenze = rimanenze.filter(function(r){return r.data !== data});
-  rimanenze.push(rec);
-  rimanenze.sort(function(a,b){return b.ts - a.ts});
-  sv(KEY_RIM, rimanenze);
-  toast('✓ Serata del ' + formatDate(data) + ' salvata','ok');
-  // Reset
-  if(copertiEl) copertiEl.value = '';
-  if(turnoEl) turnoEl.value = '';
-  if(noteEl) noteEl.value = '';
-  PREV_ARTICOLI.forEach(function(art){
-    var inp = document.getElementById('rim_' + art.id);
-    if(inp) inp.value = '';
-  });
-  renderStoricoList();
-}
-
 function renderStoricoList(){
   var el = document.getElementById('rim-storico-list');
   if(!el) return;
@@ -2946,7 +2918,33 @@ var dipendenti=ld(KEY_DIP,[]);
 var presenze=ld(KEY_PRES,{});
 var presGiornoSel=null;
 
-function initDipendenti(){renderDipList();renderPresSelettori();renderPresenze()}
+function getAnnoRif(){
+  var el=document.getElementById('dip-anno-rif');
+  return el&&el.value?parseInt(el.value):new Date().getFullYear();
+}
+
+function dipendentiAnno(){
+  var anno=getAnnoRif();
+  return dipendenti.filter(function(d){return (d.anno||new Date().getFullYear())===anno});
+}
+
+function initDipendenti(){
+  // Popola selettore anno riferimento
+  var annoEl=document.getElementById('dip-anno-rif');
+  if(annoEl&&!annoEl.options.length){
+    var curY=new Date().getFullYear();
+    var anni=new Set([curY]);
+    dipendenti.forEach(function(d){if(d.anno)anni.add(d.anno)});
+    // Aggiungi anche anno prossimo e precedente per pianificare
+    anni.add(curY-1);anni.add(curY+1);
+    Array.from(anni).sort().forEach(function(y){
+      var opt=document.createElement('option');opt.value=y;opt.textContent=y;
+      if(y===curY)opt.selected=true;
+      annoEl.appendChild(opt);
+    });
+  }
+  renderDipList();renderPresSelettori();renderPresenze();
+}
 
 function aggiungiDipendente(){
   var nameEl=document.getElementById('dip-new-name');
@@ -2954,12 +2952,54 @@ function aggiungiDipendente(){
   var name=nameEl?nameEl.value.trim():'';
   var role=roleEl?roleEl.value.trim():'';
   if(!name){toast('\u26A0 Inserisci il nome','err');return}
+  var anno=getAnnoRif();
   var id='dip_'+Date.now();
-  dipendenti.push({id:id,name:name,role:role,color:DIP_COLORS[dipendenti.length%DIP_COLORS.length]});
+  dipendenti.push({id:id,name:name,role:role,anno:anno,color:DIP_COLORS[dipendenti.length%DIP_COLORS.length]});
   sv(KEY_DIP,dipendenti);
   if(nameEl)nameEl.value='';if(roleEl)roleEl.value='';
   renderDipList();renderPresSelettori();
-  toast('\u2713 '+name+' aggiunto','ok');
+  toast('\u2713 '+name+' aggiunto ('+anno+')','ok');
+}
+
+var dipEditId=null;
+function apriModificaDipendente(id){
+  var d=dipendenti.find(function(x){return x.id===id});if(!d)return;
+  dipEditId=id;
+  document.getElementById('dip-edit-name').value=d.name;
+  document.getElementById('dip-edit-role').value=d.role||'';
+  document.getElementById('dip-edit-anno').value=d.anno||new Date().getFullYear();
+  document.getElementById('dip-edit-box').style.display='block';
+}
+
+function chiudiModificaDipendente(){
+  dipEditId=null;
+  document.getElementById('dip-edit-box').style.display='none';
+}
+
+function salvaModificaDipendente(){
+  if(!dipEditId)return;
+  var d=dipendenti.find(function(x){return x.id===dipEditId});if(!d)return;
+  var name=document.getElementById('dip-edit-name').value.trim();
+  var role=document.getElementById('dip-edit-role').value.trim();
+  var anno=parseInt(document.getElementById('dip-edit-anno').value)||new Date().getFullYear();
+  if(!name){toast('\u26A0 Il nome non può essere vuoto','err');return}
+  d.name=name;d.role=role;d.anno=anno;
+  sv(KEY_DIP,dipendenti);
+  chiudiModificaDipendente();
+  renderDipList();renderPresSelettori();
+  toast('\u2713 '+name+' aggiornato','ok');
+}
+
+function duplicaDipendenteAnno(id){
+  var d=dipendenti.find(function(x){return x.id===id});if(!d)return;
+  var nuovoAnno=(d.anno||new Date().getFullYear())+1;
+  // Verifica non esista già
+  var esiste=dipendenti.some(function(x){return x.name===d.name&&(x.anno||0)===nuovoAnno});
+  if(esiste){toast('\u26A0 '+d.name+' già presente nel '+nuovoAnno,'err');return}
+  dipendenti.push({id:'dip_'+Date.now(),name:d.name,role:d.role,anno:nuovoAnno,color:d.color});
+  sv(KEY_DIP,dipendenti);
+  renderDipList();
+  toast('\u2713 '+d.name+' copiato al '+nuovoAnno,'ok');
 }
 
 function eliminaDipendente(id){
@@ -2975,13 +3015,17 @@ function eliminaDipendente(id){
 
 function renderDipList(){
   var el=document.getElementById('dip-list');if(!el)return;
-  if(!dipendenti.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">Nessun dipendente aggiunto</div>';return}
+  var lista=dipendentiAnno();
+  var anno=getAnnoRif();
+  if(!lista.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">Nessun dipendente per il '+anno+'.<br><small>Aggiungine uno o cambia anno.</small></div>';return}
   var html='';
-  dipendenti.forEach(function(d){
+  lista.forEach(function(d){
     var ini=d.name.split(' ').map(function(p){return p[0]}).join('').substring(0,2).toUpperCase();
     html+='<div class="dip-row">'
       +'<div class="dip-avatar" style="background:'+d.color+'20;color:'+d.color+'">'+ini+'</div>'
-      +'<div><div class="dip-name">'+d.name+'</div>'+(d.role?'<div class="dip-role">'+d.role+'</div>':'')+'</div>'
+      +'<div style="flex:1"><div class="dip-name">'+d.name+'</div>'+(d.role?'<div class="dip-role">'+d.role+'</div>':'')+'</div>'
+      +'<button class="dip-del" style="color:var(--blue)" title="Modifica" onclick="apriModificaDipendente(\''+d.id+'\')">&#9998;</button>'
+      +'<button class="dip-del" style="color:var(--amber)" title="Copia all\'anno dopo" onclick="duplicaDipendenteAnno(\''+d.id+'\')">&#128257;</button>'
       +'<button class="dip-del" onclick="eliminaDipendente(\''+d.id+'\')">&#128465;</button>'
     +'</div>';
   });
@@ -2992,7 +3036,7 @@ function renderPresSelettori(){
   var sel=document.getElementById('pres-dip-sel');if(!sel)return;
   var cur=sel.value;
   var html='<option value="">Seleziona dipendente...</option>';
-  dipendenti.forEach(function(d){html+='<option value="'+d.id+'">'+d.name+'</option>'});
+  dipendentiAnno().forEach(function(d){html+='<option value="'+d.id+'">'+d.name+'</option>'});
   sel.innerHTML=html;if(cur)sel.value=cur;
   var meseEl=document.getElementById('pres-mese');
   var annoEl=document.getElementById('pres-anno');
@@ -3139,7 +3183,7 @@ function contaStati(pDip,anno,mese){
   return c;
 }
 
-function exportPresenzeExcel(){
+function exportPresenzeExcel(share){
   var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
   var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
   var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
@@ -3165,27 +3209,49 @@ function exportPresenzeExcel(){
   rows.push(['Presenti',cnt.pres]);rows.push(['Assenti',cnt.assenza]);
   rows.push(['Ferie',cnt.ferie]);rows.push(['Malattia',cnt.malattia]);rows.push(['Permessi',cnt.permesso]);
   var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
-  scaricaCsv(csv,'presenze_'+dip.name.replace(/\s+/g,'_')+'_'+MESI_FULL[mese]+'_'+anno+'.csv');
-  toast('\u2713 Excel scaricato','ok');
+  var nomeF='presenze_'+dip.name.replace(/\s+/g,'_')+'_'+MESI_FULL[mese]+'_'+anno+'.csv';
+  if(share)condividiCsv(csv,nomeF,'Presenze '+dip.name);
+  else{scaricaCsv(csv,nomeF);toast('\u2713 Excel scaricato','ok')}
+}
+
+// ── CONDIVISIONE FILE (WhatsApp, Mail, etc via Web Share API) ──
+function condividiFile(blob,nomeFile,titolo){
+  var file=new File([blob],nomeFile,{type:blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:titolo||nomeFile})
+      .then(function(){toast('\u2713 Condiviso','ok')})
+      .catch(function(e){if(e.name!=='AbortError')scaricaFileFallback(blob,nomeFile)});
+  } else {
+    scaricaFileFallback(blob,nomeFile);
+    toast('\u2713 Scaricato (condivisione non supportata dal browser)','ok');
+  }
+}
+function scaricaFileFallback(blob,nome){
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;a.click();
 }
 
 function scaricaCsv(csv,nome){
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;a.click();
 }
+function condividiCsv(csv,nome,titolo){
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv'});
+  condividiFile(blob,nome,titolo);
+}
 
-function exportPresenzePDF(){
+function exportPresenzePDF(share){
   var dipId=document.getElementById('pres-dip-sel')?document.getElementById('pres-dip-sel').value:'';
   var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
   var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
   if(!dipId){toast('\u26A0 Seleziona il dipendente','err');return}
   var dip=dipendenti.find(function(d){return d.id===dipId});if(!dip)return;
-  reportPDF([dip],anno,mese,'Registro Presenze — '+dip.name);
+  reportPDF([dip],anno,mese,'Registro Presenze — '+dip.name,share);
 }
 
 // ── REPORT COMPLETO FORZA LAVORO ──
-function exportReportCompletoExcel(){
-  if(!dipendenti.length){toast('\u26A0 Nessun dipendente','err');return}
+function exportReportCompletoExcel(share){
+  var dips=dipendentiAnno();
+  if(!dips.length){toast('\u26A0 Nessun dipendente per l\'anno','err');return}
   var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
   var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
   var giorniMese=new Date(anno,mese+1,0).getDate();
@@ -3198,7 +3264,7 @@ function exportReportCompletoExcel(){
   header.push('Pres','Ass','Ferie','Mal','Perm');
   rows.push(header);
   // Riga per dipendente
-  dipendenti.forEach(function(dip){
+  dips.forEach(function(dip){
     var pDip=presenze[dip.id]||{};
     var row=[dip.name,dip.role||''];
     for(var g=1;g<=giorniMese;g++){
@@ -3212,7 +3278,7 @@ function exportReportCompletoExcel(){
   // Riga totali complessivi
   rows.push([]);
   var totali={pres:0,assenza:0,ferie:0,malattia:0,permesso:0};
-  dipendenti.forEach(function(dip){
+  dips.forEach(function(dip){
     var cnt=contaStati(presenze[dip.id]||{},anno,mese);
     totali.pres+=cnt.pres;totali.assenza+=cnt.assenza;totali.ferie+=cnt.ferie;
     totali.malattia+=cnt.malattia;totali.permesso+=cnt.permesso;
@@ -3224,19 +3290,21 @@ function exportReportCompletoExcel(){
   rows.push([]);
   rows.push(['Legenda: P=Presente A=Assente F=Ferie M=Malattia PE=Permesso']);
   var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
-  scaricaCsv(csv,'report_completo_'+MESI_FULL[mese]+'_'+anno+'.csv');
-  toast('\u2713 Report Excel completo scaricato','ok');
+  var nomeF='report_completo_'+MESI_FULL[mese]+'_'+anno+'.csv';
+  if(share)condividiCsv(csv,nomeF,'Report presenze completo');
+  else{scaricaCsv(csv,nomeF);toast('\u2713 Report Excel completo scaricato','ok')}
 }
 
-function exportReportCompletoPDF(){
-  if(!dipendenti.length){toast('\u26A0 Nessun dipendente','err');return}
+function exportReportCompletoPDF(share){
+  var dips=dipendentiAnno();
+  if(!dips.length){toast('\u26A0 Nessun dipendente per l\'anno','err');return}
   var mese=document.getElementById('pres-mese')?parseInt(document.getElementById('pres-mese').value):new Date().getMonth();
   var anno=document.getElementById('pres-anno')?parseInt(document.getElementById('pres-anno').value):new Date().getFullYear();
-  reportPDF(dipendenti,anno,mese,'Report Presenze Forza Lavoro');
+  reportPDF(dips,anno,mese,'Report Presenze Forza Lavoro',share);
 }
 
 // Genera PDF orizzontale con griglia mese per uno o più dipendenti
-function reportPDF(listaDip,anno,mese,titolo){
+function reportPDF(listaDip,anno,mese,titolo,condividi){
   var giorniMese=new Date(anno,mese+1,0).getDate();
   var colori={pres:'#d1fae5',assenza:'#e5e7eb',ferie:'#fef3c7',malattia:'#fee2e2',permesso:'#dbeafe'};
   var testiC={pres:'#065f46',assenza:'#4b5563',ferie:'#92400e',malattia:'#991b1b',permesso:'#1e40af'};
@@ -3320,9 +3388,15 @@ function reportPDF(listaDip,anno,mese,titolo){
     +'<p style="margin-top:14px;font-size:9px;color:#94a3b8">Generato da Fuego Ordini — '+new Date().toLocaleDateString('it-IT')+'</p>'
     +'<scr'+'ipt>window.onload=function(){window.print()}</'+'script>'
     +'</body></html>';
-  var w=window.open('','_blank');
-  if(w){w.document.write(html);w.document.close()}
-  else toast('\u26A0 Abilita i popup per il PDF','err');
+  if(condividi){
+    // Condividi come file HTML (apribile ovunque, stampabile in PDF)
+    var blob=new Blob([html],{type:'text/html'});
+    condividiFile(blob,'report_presenze_'+MESI_FULL[mese]+'_'+anno+'.html',titolo);
+  } else {
+    var w=window.open('','_blank');
+    if(w){w.document.write(html);w.document.close()}
+    else toast('\u26A0 Abilita i popup per il PDF','err');
+  }
 }
 
 function eliminaFornitore(){
@@ -3517,6 +3591,30 @@ function importConsPaste(){
   toast('\u2713 '+nuove+' nuove, '+aggiornate+' aggiornate','ok');
 }
 
+var turnoSelezionati=[];
+
+function renderTurnoChips(){
+  var el=document.getElementById('ci-turno-chips');if(!el)return;
+  var lista=dipendentiAnno();
+  if(!lista.length){
+    el.innerHTML='<div style="font-size:11px;color:var(--muted)">Nessun dipendente — aggiungili nel tab Personale</div>';
+    return;
+  }
+  el.innerHTML='';
+  lista.forEach(function(d){
+    var chip=document.createElement('button');
+    chip.className='turno-chip'+(turnoSelezionati.indexOf(d.id)>=0?' sel':'');
+    chip.textContent=d.name;
+    chip.onclick=function(){
+      var i=turnoSelezionati.indexOf(d.id);
+      if(i>=0)turnoSelezionati.splice(i,1);
+      else turnoSelezionati.push(d.id);
+      chip.classList.toggle('sel');
+    };
+    el.appendChild(chip);
+  });
+}
+
 function toggleConsInput(){
   var body=document.getElementById('cons-input-body');
   var toggle=document.getElementById('cons-input-toggle');
@@ -3526,6 +3624,7 @@ function toggleConsInput(){
   if(isOpen){
     var dataEl=document.getElementById('ci-data');
     if(dataEl&&!dataEl.value)dataEl.value=new Date().toISOString().split('T')[0];
+    renderTurnoChips();
   }
 }
 
@@ -3536,33 +3635,53 @@ function checkGiornoEsistente(){
   var data=dataEl.value;
   if(!data){box.className='cons-input-existing';return}
   var esistente=storico.find(function(s){return s.data===data});
-  if(esistente){
+  var rimEsist=rimanenze.find(function(r){return r.data===data});
+  if(esistente||rimEsist){
     box.className='cons-input-existing show';
-    box.innerHTML='\u26A0 Giornata già presente: '+esistente.coperti+' coperti, '+esistente.arrosticini+' arrosticini'+(esistente.incasso?', €'+esistente.incasso:'')+'. Salvando <strong>sovrascriverai</strong> i dati.';
-    // Precompila i campi con i valori esistenti
-    var map={'ci-coperti':'coperti','ci-incasso':'incasso','ci-arrosticini':'arrosticini','ci-pizze':'pizze','ci-hamburger':'hamburger','ci-tagliateR':'tagliateR'};
-    for(var id in map){
-      var el=document.getElementById(id);
-      if(el&&esistente[map[id]])el.value=esistente[map[id]];
+    var parts=[];
+    if(esistente)parts.push(esistente.coperti+' coperti, '+esistente.arrosticini+' arr'+(esistente.incasso?', €'+esistente.incasso:''));
+    if(rimEsist)parts.push('rimanenze registrate');
+    box.innerHTML='\u26A0 Giornata già presente ('+parts.join(' + ')+'). Salvando <strong>sovrascriverai</strong>.';
+    if(esistente){
+      var map={'ci-coperti':'coperti','ci-incasso':'incasso','ci-arrosticini':'arrosticini','ci-pizze':'pizze','ci-hamburger':'hamburger','ci-tagliateR':'tagliateR'};
+      for(var id in map){
+        var el=document.getElementById(id);
+        if(el&&esistente[map[id]])el.value=esistente[map[id]];
+      }
+    }
+    if(rimEsist){
+      var mapR={'ci-rim-arrosticini':'arrosticini','ci-rim-pizze':'pizze','ci-rim-hamburger':'hamburger','ci-rim-tagliateR':'tagliateR'};
+      for(var id in mapR){
+        var el=document.getElementById(id);
+        if(el&&rimEsist.articoli&&rimEsist.articoli[mapR[id]])el.value=rimEsist.articoli[mapR[id]];
+      }
+      // Riseleziona i chip del turno salvato
+      if(rimEsist.turno){
+        var nomi=rimEsist.turno.split(',').map(function(n){return n.trim()});
+        turnoSelezionati=dipendenti.filter(function(d){return nomi.indexOf(d.name)>=0}).map(function(d){return d.id});
+        renderTurnoChips();
+      }
+      var nEl=document.getElementById('ci-note');if(nEl&&rimEsist.note)nEl.value=rimEsist.note;
     }
   } else {
     box.className='cons-input-existing';
   }
 }
 
-function salvaGiornoManuale(){
+function salvaChiusuraSerata(){
   var data=document.getElementById('ci-data').value;
   if(!data){toast('\u26A0 Inserisci la data','err');return}
   function val(id){var el=document.getElementById(id);return el?(parseFloat(el.value)||0):0}
+  function txt(id){var el=document.getElementById(id);return el?el.value.trim():''}
   var coperti=val('ci-coperti');
   var incasso=val('ci-incasso');
   var arr=val('ci-arrosticini');
-  // Almeno un dato deve essere presente
-  if(!coperti&&!incasso&&!arr){toast('\u26A0 Inserisci almeno coperti, incasso o arrosticini','err');return}
+  if(!coperti&&!incasso&&!arr){toast('\u26A0 Inserisci almeno coperti, incasso o consumi','err');return}
   var dObj=new Date(data+'T12:00:00');
+
+  // ── 1. STORICO: coperti + consumi + incasso ──
   var rec={
-    data:data,
-    ts:dObj.getTime(),
+    data:data, ts:dObj.getTime(),
     coperti:coperti,
     arrosticini:arr,
     pizze:val('ci-pizze'),
@@ -3572,22 +3691,69 @@ function salvaGiornoManuale(){
     incasso:incasso,
     giorno:(dObj.getDay()+6)%7
   };
-  // Sostituisci o aggiungi
   var idx=storico.findIndex(function(s){return s.data===data});
-  if(idx>=0)storico[idx]=rec;
-  else storico.push(rec);
+  if(idx>=0){
+    // Preserva incasso esistente se il nuovo è 0
+    if(!rec.incasso&&storico[idx].incasso)rec.incasso=storico[idx].incasso;
+    storico[idx]=rec;
+  } else storico.push(rec);
   storico.sort(function(a,b){return b.ts-a.ts});
   sv(KEY_STOR,storico);
   calcolaCoefficienti();
-  renderStoricoStats&&renderStoricoStats();
-  // Reset campi
-  ['ci-coperti','ci-incasso','ci-arrosticini','ci-pizze','ci-hamburger','ci-tagliateR'].forEach(function(id){
+
+  // ── 2. RIMANENZE: articoli rimasti + turno + note (per la previsione) ──
+  var rimArt={
+    arrosticini:val('ci-rim-arrosticini'),
+    pizze:val('ci-rim-pizze'),
+    hamburger:val('ci-rim-hamburger'),
+    tagliateR:val('ci-rim-tagliateR'),
+    tagliateB:0
+  };
+  var haRim=Object.keys(rimArt).some(function(k){return rimArt[k]>0});
+  // Turno: nomi dai chip selezionati
+  var turnoNomi=turnoSelezionati.map(function(id){
+    var d=dipendenti.find(function(x){return x.id===id});
+    return d?d.name:null;
+  }).filter(Boolean);
+  var turno=turnoNomi.join(', ');
+  var note=txt('ci-note');
+  if(haRim||turno||note){
+    var rimRec={
+      data:data, ts:dObj.getTime(),
+      coperti:coperti,
+      turno:turno, note:note,
+      articoli:rimArt
+    };
+    rimanenze=rimanenze.filter(function(r){return r.data!==data});
+    rimanenze.push(rimRec);
+    rimanenze.sort(function(a,b){return b.ts-a.ts});
+    sv(KEY_RIM,rimanenze);
+  }
+
+  // ── 3. AUTO-PRESENZA: segna presenti i dipendenti del turno ──
+  var autoPres=0;
+  turnoSelezionati.forEach(function(dipId){
+    if(!presenze[dipId])presenze[dipId]={};
+    if(!presenze[dipId][data]){ // non sovrascrivere stati già impostati (es. permesso)
+      presenze[dipId][data]='pres';
+      autoPres++;
+    }
+  });
+  if(autoPres>0)sv(KEY_PRES,presenze);
+
+  // Reset form
+  ['ci-coperti','ci-incasso','ci-arrosticini','ci-pizze','ci-hamburger','ci-tagliateR',
+   'ci-rim-arrosticini','ci-rim-pizze','ci-rim-hamburger','ci-rim-tagliateR','ci-note'].forEach(function(id){
     var el=document.getElementById(id);if(el)el.value='';
   });
+  turnoSelezionati=[];
+  renderTurnoChips();
   document.getElementById('cons-input-existing').className='cons-input-existing';
-  // Aggiorna anno/mese disponibili e ridisegna
   initCons();
-  toast('\u2713 Giornata del '+formatDate(data)+' salvata','ok');
+  var extra=[];
+  if(haRim)extra.push('rimanenze');
+  if(autoPres>0)extra.push(autoPres+' presenze auto');
+  toast('\u2713 Chiusura del '+formatDate(data)+' salvata'+(extra.length?' (+ '+extra.join(', ')+')':''),'ok');
 }
 
 function renderCons(){
