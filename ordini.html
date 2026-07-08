@@ -793,7 +793,10 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
           <div class="cons-input-label">Note serata</div>
           <input class="cons-input-inp" type="text" placeholder="es. pioggia, evento..." id="ci-note" style="font-family:inherit">
         </div>
-        <button class="prev-btn" onclick="salvaChiusuraSerata()" style="margin-top:12px">&#10003; Salva chiusura serata</button>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="prev-btn" onclick="salvaChiusuraSerata()" style="flex:2">&#10003; Salva chiusura serata</button>
+          <button class="prev-btn secondary" onclick="salvaGiornoChiuso()" style="flex:1;font-size:11px;color:var(--blue);border-color:var(--blue)">&#127783; Chiuso / Pioggia</button>
+        </div>
         <div id="prossimo-ordine-box" style="display:none;margin-top:10px;background:var(--green-glow);border:1.5px solid var(--green);border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">Serata registrata! Vuoi preparare l'ordine di domani?</div>
           <button class="prev-btn" onclick="vaiAOrdineDomani()" style="font-size:12px">&#127919; Calcola ordine di domani &rarr;</button>
@@ -3775,6 +3778,42 @@ function checkGiornoEsistente(){
   } else {
     box.className='cons-input-existing';
   }
+}
+
+function salvaGiornoChiuso(){
+  var data=document.getElementById('ci-data').value;
+  if(!data){toast('\u26A0 Inserisci la data','err');return}
+  var noteEl=document.getElementById('ci-note');
+  var nota=noteEl&&noteEl.value.trim()?noteEl.value.trim():'Chiuso';
+  if(!window.confirm('Registrare '+formatDate(data)+' come giornata CHIUSA (tutto a zero)?\nNota: '+nota))return;
+  var dObj=new Date(data+'T12:00:00');
+  var rec={
+    data:data, ts:dObj.getTime(),
+    coperti:0, arrosticini:0, pizze:0, hamburger:0, tagliateR:0, tagliateB:0,
+    incasso:0,
+    giorno:(dObj.getDay()+6)%7
+  };
+  var idx=storico.findIndex(function(s){return s.data===data});
+  if(idx>=0)storico[idx]=rec;
+  else storico.push(rec);
+  storico.sort(function(a,b){return b.ts-a.ts});
+  sv(KEY_STOR,storico);
+  // Salva anche la nota nelle rimanenze (per contesto: pioggia, ferie, ecc.)
+  rimanenze=rimanenze.filter(function(r){return r.data!==data});
+  rimanenze.push({data:data,ts:dObj.getTime(),coperti:0,turno:'',note:nota,
+    articoli:{arrosticini:0,pizze:0,hamburger:0,tagliateR:0,tagliateB:0}});
+  rimanenze.sort(function(a,b){return b.ts-a.ts});
+  sv(KEY_RIM,rimanenze);
+  // Reset form
+  ['ci-coperti','ci-incasso','ci-arrosticini','ci-pizze','ci-hamburger','ci-tagliateR',
+   'ci-rim-arrosticini','ci-rim-pizze','ci-rim-hamburger','ci-rim-tagliateR','ci-note'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  turnoSelezionati=[];
+  renderTurnoChips();
+  document.getElementById('cons-input-existing').className='cons-input-existing';
+  initCons();
+  toast('\u2713 '+formatDate(data)+' registrato come chiuso ('+nota+')','ok');
 }
 
 function salvaChiusuraSerata(){
