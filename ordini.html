@@ -502,6 +502,12 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .turno-chip{padding:7px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--s2);font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;font-family:inherit}
 .turno-chip.sel{border-color:var(--green);background:var(--green-glow);color:var(--green)}
 
+
+.backup-warn{background:var(--amber-dim);border:1.5px solid var(--amber);border-radius:11px;padding:11px 13px;margin-bottom:13px;display:none;align-items:center;gap:10px}
+.backup-warn.show{display:flex}
+.backup-warn-txt{flex:1;font-size:11.5px;color:var(--text);line-height:1.5}
+.backup-warn-btn{background:var(--amber);border:none;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -604,6 +610,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         <button class="prev-btn secondary" onclick="resetCoefficienti()" style="flex:1;font-size:11px">&#8635; Ripristina coefficienti</button>
         <button class="prev-btn secondary" onclick="verificaDatiStorico()" style="flex:1;font-size:11px;color:var(--amber);border-color:var(--amber)">&#128269; Verifica dati</button>
       </div>
+      <button class="prev-btn secondary" onclick="ripristinaDatiIniziali()" style="width:100%;margin-top:8px;font-size:11px;color:var(--blue);border-color:var(--blue)">&#128190; Ripristina dati iniziali 2025-2026</button>
       <button class="prev-btn" onclick="eliminaStorico()" style="width:100%;margin-top:8px;font-size:11px;background:rgba(220,38,38,.1);color:var(--red);border:1px solid var(--red)">&#128465; Elimina tutto lo storico</button>
     </div>
 
@@ -917,6 +924,10 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 <!-- DASHBOARD -->
 <div class="screen" id="screen-dash">
   <div class="dash-wrap">
+    <div class="backup-warn" id="backup-warn-dash">
+      <div class="backup-warn-txt">&#9888; <strong>Backup datato o assente.</strong> I dati vivono solo su questo telefono: senza backup, se lo perdi perdi tutto.</div>
+      <button class="backup-warn-btn" onclick="showScreen('sync')">Vai al backup</button>
+    </div>
     <div class="cruscotto" id="cruscotto"></div>
     <div class="dash-filters">
       <div class="filter-group">
@@ -1628,6 +1639,7 @@ function populateArticleFilter(supF){
 function renderDash(){
   var now=new Date();
   renderCruscotto();
+  aggiornaAvvisoBackup();
   var supF=document.getElementById('f-supplier').value;
   var artF=document.getElementById('f-article').value;
   var period=document.getElementById('f-period').value;
@@ -1795,6 +1807,8 @@ function copyGas(el){
 
 // BACKUP
 function exportBackup(){
+  try{ localStorage.setItem('last_backup_ts', Date.now().toString()); }catch(e){}
+  aggiornaAvvisoBackup();
   var b={
     version:3,
     exported:new Date().toISOString(),
@@ -2143,13 +2157,40 @@ var coefficienti = ld(KEY_COEFF, JSON.parse(JSON.stringify(coeffDefault)));
 var rimanenze    = ld(KEY_RIM,   []);
 var storico      = ld(KEY_STOR,  []);
 var STORICO_EMBED = [{"data":"2025-06-01","ts":1748736000000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":6},{"data":"2025-06-02","ts":1748822400000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":0},{"data":"2025-06-03","ts":1748908800000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":1},{"data":"2025-06-04","ts":1748995200000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":2},{"data":"2025-06-05","ts":1749081600000,"coperti":17,"arrosticini":105,"pizze":1,"hamburger":3,"tagliateR":2,"tagliateB":0,"incasso":345.0,"giorno":3},{"data":"2025-06-06","ts":1749168000000,"coperti":49,"arrosticini":355,"pizze":2,"hamburger":9,"tagliateR":5,"tagliateB":0,"incasso":1002.5,"giorno":4},{"data":"2025-06-07","ts":1749254400000,"coperti":149,"arrosticini":971,"pizze":20,"hamburger":15,"tagliateR":13,"tagliateB":0,"incasso":4206.33,"giorno":5},{"data":"2025-06-08","ts":1749340800000,"coperti":57,"arrosticini":350,"pizze":3,"hamburger":7,"tagliateR":2,"tagliateB":0,"incasso":1202.0,"giorno":6},{"data":"2025-06-09","ts":1749427200000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":50.0,"giorno":0},{"data":"2025-06-10","ts":1749513600000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":1},{"data":"2025-06-11","ts":1749600000000,"coperti":31,"arrosticini":355,"pizze":3,"hamburger":0,"tagliateR":4,"tagliateB":0,"incasso":773.0,"giorno":2},{"data":"2025-06-12","ts":1749686400000,"coperti":38,"arrosticini":294,"pizze":2,"hamburger":0,"tagliateR":3,"tagliateB":0,"incasso":1084.0,"giorno":3},{"data":"2025-06-13","ts":1749772800000,"coperti":58,"arrosticini":410,"pizze":5,"hamburger":1,"tagliateR":7,"tagliateB":0,"incasso":1533.5,"giorno":4},{"data":"2025-06-14","ts":1749859200000,"coperti":165,"arrosticini":1070,"pizze":16,"hamburger":13,"tagliateR":14,"tagliateB":0,"incasso":4293.5,"giorno":5},{"data":"2025-06-15","ts":1749945600000,"coperti":142,"arrosticini":1010,"pizze":14,"hamburger":20,"tagliateR":10,"tagliateB":0,"incasso":2936.5,"giorno":6},{"data":"2025-06-16","ts":1750032000000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":0},{"data":"2025-06-17","ts":1750118400000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":1},{"data":"2025-06-18","ts":1750204800000,"coperti":54,"arrosticini":380,"pizze":3,"hamburger":3,"tagliateR":2,"tagliateB":0,"incasso":1355.0,"giorno":2},{"data":"2025-06-19","ts":1750291200000,"coperti":47,"arrosticini":280,"pizze":3,"hamburger":1,"tagliateR":5,"tagliateB":0,"incasso":1099.5,"giorno":3},{"data":"2025-06-20","ts":1750377600000,"coperti":140,"arrosticini":830,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":3677.0,"giorno":4},{"data":"2025-06-21","ts":1750464000000,"coperti":223,"arrosticini":1595,"pizze":25,"hamburger":17,"tagliateR":24,"tagliateB":0,"incasso":6167.5,"giorno":5},{"data":"2025-06-22","ts":1750550400000,"coperti":91,"arrosticini":650,"pizze":15,"hamburger":2,"tagliateR":2,"tagliateB":0,"incasso":2266.0,"giorno":6},{"data":"2025-06-23","ts":1750636800000,"coperti":52,"arrosticini":250,"pizze":3,"hamburger":11,"tagliateR":0,"tagliateB":0,"incasso":1127.5,"giorno":0},{"data":"2025-06-24","ts":1750723200000,"coperti":85,"arrosticini":510,"pizze":8,"hamburger":5,"tagliateR":5,"tagliateB":0,"incasso":2193.5,"giorno":1},{"data":"2025-06-25","ts":1750809600000,"coperti":87,"arrosticini":530,"pizze":3,"hamburger":2,"tagliateR":12,"tagliateB":0,"incasso":2219.5,"giorno":2},{"data":"2025-06-26","ts":1750896000000,"coperti":69,"arrosticini":470,"pizze":4,"hamburger":6,"tagliateR":2,"tagliateB":0,"incasso":1120.5,"giorno":3},{"data":"2025-06-27","ts":1750982400000,"coperti":153,"arrosticini":1010,"pizze":9,"hamburger":15,"tagliateR":9,"tagliateB":0,"incasso":3813.0,"giorno":4},{"data":"2025-06-28","ts":1751068800000,"coperti":204,"arrosticini":1340,"pizze":21,"hamburger":16,"tagliateR":19,"tagliateB":0,"incasso":5655.5,"giorno":5},{"data":"2025-06-29","ts":1751155200000,"coperti":97,"arrosticini":655,"pizze":8,"hamburger":11,"tagliateR":5,"tagliateB":0,"incasso":2528.5,"giorno":6},{"data":"2025-06-30","ts":1751241600000,"coperti":16,"arrosticini":100,"pizze":0,"hamburger":0,"tagliateR":2,"tagliateB":0,"incasso":399.6,"giorno":0},{"data":"2025-07-01","ts":1751328000000,"coperti":73,"arrosticini":285,"pizze":12,"hamburger":9,"tagliateR":0,"tagliateB":0,"incasso":1624.5,"giorno":1},{"data":"2025-07-02","ts":1751414400000,"coperti":90,"arrosticini":570,"pizze":5,"hamburger":3,"tagliateR":9,"tagliateB":0,"incasso":2480.5,"giorno":2},{"data":"2025-07-03","ts":1751500800000,"coperti":89,"arrosticini":400,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":50.0,"giorno":3},{"data":"2025-07-04","ts":1751587200000,"coperti":89,"arrosticini":850,"pizze":8,"hamburger":3,"tagliateR":2,"tagliateB":0,"incasso":2785.0,"giorno":4},{"data":"2025-07-05","ts":1751673600000,"coperti":263,"arrosticini":1560,"pizze":22,"hamburger":17,"tagliateR":16,"tagliateB":0,"incasso":6731.2,"giorno":5},{"data":"2025-07-06","ts":1751760000000,"coperti":147,"arrosticini":1100,"pizze":10,"hamburger":15,"tagliateR":7,"tagliateB":0,"incasso":3902.5,"giorno":6},{"data":"2025-07-07","ts":1751846400000,"coperti":68,"arrosticini":640,"pizze":5,"hamburger":2,"tagliateR":0,"tagliateB":0,"incasso":1647.0,"giorno":0},{"data":"2025-07-08","ts":1751932800000,"coperti":51,"arrosticini":335,"pizze":2,"hamburger":5,"tagliateR":5,"tagliateB":0,"incasso":1296.5,"giorno":1},{"data":"2025-07-09","ts":1752019200000,"coperti":73,"arrosticini":600,"pizze":9,"hamburger":7,"tagliateR":3,"tagliateB":0,"incasso":2129.5,"giorno":2},{"data":"2025-07-10","ts":1752105600000,"coperti":67,"arrosticini":390,"pizze":48,"hamburger":2,"tagliateR":6,"tagliateB":0,"incasso":1592.5,"giorno":3},{"data":"2025-07-11","ts":1752192000000,"coperti":174,"arrosticini":1200,"pizze":14,"hamburger":13,"tagliateR":10,"tagliateB":0,"incasso":4383.5,"giorno":4},{"data":"2025-07-12","ts":1752278400000,"coperti":272,"arrosticini":1750,"pizze":27,"hamburger":14,"tagliateR":31,"tagliateB":0,"incasso":7604.5,"giorno":5},{"data":"2025-07-13","ts":1752364800000,"coperti":128,"arrosticini":920,"pizze":12,"hamburger":9,"tagliateR":8,"tagliateB":0,"incasso":2022.0,"giorno":6},{"data":"2025-07-14","ts":1752451200000,"coperti":107,"arrosticini":800,"pizze":5,"hamburger":16,"tagliateR":1,"tagliateB":0,"incasso":4841.5,"giorno":0},{"data":"2025-07-15","ts":1752537600000,"coperti":48,"arrosticini":325,"pizze":3,"hamburger":4,"tagliateR":3,"tagliateB":0,"incasso":1330.0,"giorno":1},{"data":"2025-07-16","ts":1752624000000,"coperti":145,"arrosticini":1060,"pizze":7,"hamburger":4,"tagliateR":6,"tagliateB":0,"incasso":3872.0,"giorno":2},{"data":"2025-07-17","ts":1752710400000,"coperti":142,"arrosticini":650,"pizze":12,"hamburger":23,"tagliateR":14,"tagliateB":0,"incasso":3346.5,"giorno":3},{"data":"2025-07-18","ts":1752796800000,"coperti":134,"arrosticini":600,"pizze":19,"hamburger":14,"tagliateR":14,"tagliateB":0,"incasso":3615.0,"giorno":4},{"data":"2025-07-19","ts":1752883200000,"coperti":254,"arrosticini":1450,"pizze":26,"hamburger":43,"tagliateR":28,"tagliateB":0,"incasso":6893.0,"giorno":5},{"data":"2025-07-20","ts":1752969600000,"coperti":164,"arrosticini":1130,"pizze":16,"hamburger":10,"tagliateR":5,"tagliateB":0,"incasso":4105.0,"giorno":6},{"data":"2025-07-21","ts":1753056000000,"coperti":75,"arrosticini":445,"pizze":5,"hamburger":4,"tagliateR":10,"tagliateB":0,"incasso":2105.0,"giorno":0},{"data":"2025-07-22","ts":1753142400000,"coperti":103,"arrosticini":500,"pizze":15,"hamburger":13,"tagliateR":4,"tagliateB":0,"incasso":2476.5,"giorno":1},{"data":"2025-07-23","ts":1753228800000,"coperti":119,"arrosticini":700,"pizze":6,"hamburger":8,"tagliateR":9,"tagliateB":0,"incasso":2913.5,"giorno":2},{"data":"2025-07-24","ts":1753315200000,"coperti":120,"arrosticini":780,"pizze":8,"hamburger":6,"tagliateR":11,"tagliateB":0,"incasso":3190.0,"giorno":3},{"data":"2025-07-25","ts":1753401600000,"coperti":203,"arrosticini":1250,"pizze":20,"hamburger":16,"tagliateR":19,"tagliateB":0,"incasso":5581.5,"giorno":4},{"data":"2025-07-26","ts":1753488000000,"coperti":149,"arrosticini":1095,"pizze":12,"hamburger":8,"tagliateR":7,"tagliateB":0,"incasso":4096.0,"giorno":5},{"data":"2025-07-27","ts":1753574400000,"coperti":163,"arrosticini":1100,"pizze":17,"hamburger":17,"tagliateR":12,"tagliateB":0,"incasso":4248.0,"giorno":6},{"data":"2025-07-28","ts":1753660800000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":0},{"data":"2025-07-29","ts":1753747200000,"coperti":29,"arrosticini":170,"pizze":0,"hamburger":9,"tagliateR":4,"tagliateB":0,"incasso":822.5,"giorno":1},{"data":"2025-07-30","ts":1753833600000,"coperti":62,"arrosticini":380,"pizze":7,"hamburger":3,"tagliateR":9,"tagliateB":0,"incasso":884.5,"giorno":2},{"data":"2025-07-31","ts":1753920000000,"coperti":129,"arrosticini":970,"pizze":13,"hamburger":5,"tagliateR":4,"tagliateB":0,"incasso":3412.0,"giorno":3},{"data":"2025-08-01","ts":1754006400000,"coperti":211,"arrosticini":1250,"pizze":21,"hamburger":14,"tagliateR":8,"tagliateB":0,"incasso":5184.0,"giorno":4},{"data":"2025-08-02","ts":1754092800000,"coperti":307,"arrosticini":2200,"pizze":20,"hamburger":27,"tagliateR":16,"tagliateB":0,"incasso":8691.5,"giorno":5},{"data":"2025-08-03","ts":1754179200000,"coperti":24,"arrosticini":160,"pizze":1,"hamburger":0,"tagliateR":1,"tagliateB":0,"incasso":638.0,"giorno":6},{"data":"2025-08-04","ts":1754265600000,"coperti":84,"arrosticini":550,"pizze":6,"hamburger":11,"tagliateR":4,"tagliateB":0,"incasso":2278.5,"giorno":0},{"data":"2025-08-05","ts":1754352000000,"coperti":142,"arrosticini":1000,"pizze":9,"hamburger":16,"tagliateR":8,"tagliateB":0,"incasso":4063.5,"giorno":1},{"data":"2025-08-06","ts":1754438400000,"coperti":139,"arrosticini":850,"pizze":6,"hamburger":10,"tagliateR":14,"tagliateB":0,"incasso":3968.5,"giorno":2},{"data":"2025-08-07","ts":1754524800000,"coperti":122,"arrosticini":640,"pizze":9,"hamburger":20,"tagliateR":6,"tagliateB":0,"incasso":3325.5,"giorno":3},{"data":"2025-08-08","ts":1754611200000,"coperti":196,"arrosticini":1390,"pizze":11,"hamburger":10,"tagliateR":11,"tagliateB":0,"incasso":5633.0,"giorno":4},{"data":"2025-08-09","ts":1754697600000,"coperti":332,"arrosticini":2350,"pizze":24,"hamburger":37,"tagliateR":12,"tagliateB":0,"incasso":9604.75,"giorno":5},{"data":"2025-08-10","ts":1754784000000,"coperti":208,"arrosticini":1420,"pizze":23,"hamburger":20,"tagliateR":13,"tagliateB":0,"incasso":6032.2,"giorno":6},{"data":"2025-08-11","ts":1754870400000,"coperti":183,"arrosticini":1090,"pizze":14,"hamburger":22,"tagliateR":9,"tagliateB":0,"incasso":5189.5,"giorno":0},{"data":"2025-08-12","ts":1754956800000,"coperti":235,"arrosticini":1599,"pizze":15,"hamburger":27,"tagliateR":15,"tagliateB":0,"incasso":6987.0,"giorno":1},{"data":"2025-08-13","ts":1755043200000,"coperti":271,"arrosticini":1820,"pizze":19,"hamburger":23,"tagliateR":13,"tagliateB":0,"incasso":7759.0,"giorno":2},{"data":"2025-08-14","ts":1755129600000,"coperti":249,"arrosticini":1405,"pizze":28,"hamburger":27,"tagliateR":24,"tagliateB":0,"incasso":7219.5,"giorno":3},{"data":"2025-08-15","ts":1755216000000,"coperti":221,"arrosticini":999,"pizze":20,"hamburger":30,"tagliateR":17,"tagliateB":0,"incasso":5620.5,"giorno":4},{"data":"2025-08-16","ts":1755302400000,"coperti":332,"arrosticini":1735,"pizze":48,"hamburger":51,"tagliateR":22,"tagliateB":0,"incasso":9198.59,"giorno":5},{"data":"2025-08-17","ts":1755388800000,"coperti":319,"arrosticini":1950,"pizze":23,"hamburger":48,"tagliateR":22,"tagliateB":0,"incasso":8037.95,"giorno":6},{"data":"2025-08-18","ts":1755475200000,"coperti":197,"arrosticini":1101,"pizze":13,"hamburger":15,"tagliateR":17,"tagliateB":0,"incasso":5273.9,"giorno":0},{"data":"2025-08-19","ts":1755561600000,"coperti":210,"arrosticini":1520,"pizze":15,"hamburger":12,"tagliateR":8,"tagliateB":0,"incasso":5886.5,"giorno":1},{"data":"2025-08-20","ts":1755648000000,"coperti":227,"arrosticini":1620,"pizze":27,"hamburger":25,"tagliateR":14,"tagliateB":0,"incasso":6611.5,"giorno":2},{"data":"2025-08-21","ts":1755734400000,"coperti":237,"arrosticini":1285,"pizze":23,"hamburger":29,"tagliateR":11,"tagliateB":0,"incasso":6184.7,"giorno":3},{"data":"2025-08-22","ts":1755820800000,"coperti":179,"arrosticini":864,"pizze":16,"hamburger":33,"tagliateR":12,"tagliateB":0,"incasso":4867.2,"giorno":4},{"data":"2025-08-23","ts":1755907200000,"coperti":243,"arrosticini":1350,"pizze":24,"hamburger":29,"tagliateR":37,"tagliateB":0,"incasso":6852.0,"giorno":5},{"data":"2025-08-24","ts":1755993600000,"coperti":135,"arrosticini":720,"pizze":11,"hamburger":18,"tagliateR":12,"tagliateB":0,"incasso":4123.4,"giorno":6},{"data":"2025-08-25","ts":1756080000000,"coperti":151,"arrosticini":985,"pizze":16,"hamburger":18,"tagliateR":12,"tagliateB":0,"incasso":4121.0,"giorno":0},{"data":"2025-08-26","ts":1756166400000,"coperti":94,"arrosticini":600,"pizze":4,"hamburger":14,"tagliateR":9,"tagliateB":0,"incasso":2443.5,"giorno":1},{"data":"2025-08-27","ts":1756252800000,"coperti":116,"arrosticini":985,"pizze":11,"hamburger":8,"tagliateR":4,"tagliateB":0,"incasso":3369.5,"giorno":2},{"data":"2025-08-28","ts":1756339200000,"coperti":136,"arrosticini":1025,"pizze":10,"hamburger":7,"tagliateR":8,"tagliateB":0,"incasso":4041.5,"giorno":3},{"data":"2025-08-29","ts":1756425600000,"coperti":105,"arrosticini":520,"pizze":10,"hamburger":16,"tagliateR":10,"tagliateB":0,"incasso":2833.0,"giorno":4},{"data":"2025-08-30","ts":1756512000000,"coperti":148,"arrosticini":1090,"pizze":16,"hamburger":10,"tagliateR":6,"tagliateB":0,"incasso":4114.5,"giorno":5},{"data":"2025-08-31","ts":1756598400000,"coperti":113,"arrosticini":810,"pizze":9,"hamburger":8,"tagliateR":12,"tagliateB":0,"incasso":3433.7,"giorno":6},{"data":"2025-09-01","ts":1756684800000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":0},{"data":"2025-09-02","ts":1756771200000,"coperti":41,"arrosticini":465,"pizze":0,"hamburger":7,"tagliateR":1,"tagliateB":0,"incasso":1071.5,"giorno":1},{"data":"2025-09-03","ts":1756857600000,"coperti":62,"arrosticini":496,"pizze":6,"hamburger":1,"tagliateR":5,"tagliateB":0,"incasso":1774.0,"giorno":2},{"data":"2025-09-04","ts":1756944000000,"coperti":110,"arrosticini":641,"pizze":7,"hamburger":12,"tagliateR":4,"tagliateB":0,"incasso":2735.0,"giorno":3},{"data":"2025-09-05","ts":1757030400000,"coperti":119,"arrosticini":810,"pizze":11,"hamburger":14,"tagliateR":4,"tagliateB":0,"incasso":3478.6,"giorno":4},{"data":"2026-05-28","ts":1779926400000,"coperti":32,"arrosticini":200,"pizze":3,"hamburger":1,"tagliateR":1,"tagliateB":0,"incasso":781.0,"giorno":3},{"data":"2026-05-29","ts":1780012800000,"coperti":36,"arrosticini":200,"pizze":1,"hamburger":1,"tagliateR":2,"tagliateB":0,"incasso":751.53,"giorno":4},{"data":"2026-05-30","ts":1780099200000,"coperti":171,"arrosticini":1300,"pizze":12,"hamburger":9,"tagliateR":7,"tagliateB":0,"incasso":6350.1,"giorno":5},{"data":"2026-05-31","ts":1780185600000,"coperti":161,"arrosticini":1280,"pizze":14,"hamburger":4,"tagliateR":2,"tagliateB":0,"incasso":6798.5,"giorno":6},{"data":"2026-06-01","ts":1780272000000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0.0,"giorno":0},{"data":"2026-06-02","ts":1780358400000,"coperti":104,"arrosticini":780,"pizze":6,"hamburger":7,"tagliateR":4,"tagliateB":0,"incasso":2394.0,"giorno":1},{"data":"2026-06-03","ts":1780444800000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":2},{"data":"2026-06-04","ts":1780531200000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":3},{"data":"2026-06-05","ts":1780617600000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":4},{"data":"2026-06-06","ts":1780704000000,"coperti":88,"arrosticini":670,"pizze":4,"hamburger":4,"tagliateR":6,"tagliateB":0,"incasso":3490.0,"giorno":5},{"data":"2026-06-07","ts":1780790400000,"coperti":57,"arrosticini":355,"pizze":4,"hamburger":11,"tagliateR":1,"tagliateB":0,"incasso":1327.0,"giorno":6},{"data":"2026-06-08","ts":1780876800000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":0},{"data":"2026-06-09","ts":1780963200000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":1},{"data":"2026-06-10","ts":1781049600000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":2},{"data":"2026-06-11","ts":1781136000000,"coperti":0,"arrosticini":0,"pizze":0,"hamburger":0,"tagliateR":0,"tagliateB":0,"incasso":0,"giorno":3},{"data":"2026-06-12","ts":1781222400000,"coperti":107,"arrosticini":814,"pizze":6,"hamburger":0,"tagliateR":15,"tagliateB":0,"incasso":2998.38,"giorno":4},{"data":"2026-06-13","ts":1781308800000,"coperti":111,"arrosticini":554,"pizze":9,"hamburger":5,"tagliateR":10,"tagliateB":0,"incasso":3237.5,"giorno":5},{"data":"2026-06-14","ts":1781395200000,"coperti":67,"arrosticini":470,"pizze":5,"hamburger":8,"tagliateR":5,"tagliateB":0,"incasso":1930.0,"giorno":6},{"data":"2026-06-15","ts":1781481600000,"coperti":58,"arrosticini":415,"pizze":5,"hamburger":13,"tagliateR":4,"tagliateB":0,"incasso":1817.0,"giorno":0},{"data":"2026-06-16","ts":1781568000000,"coperti":25,"arrosticini":265,"pizze":2,"hamburger":2,"tagliateR":5,"tagliateB":0,"incasso":887.0,"giorno":1},{"data":"2026-06-17","ts":1781654400000,"coperti":29,"arrosticini":266,"pizze":1,"hamburger":0,"tagliateR":2,"tagliateB":0,"incasso":1043.5,"giorno":2},{"data":"2026-06-18","ts":1781740800000,"coperti":41,"arrosticini":165,"pizze":9,"hamburger":2,"tagliateR":3,"tagliateB":0,"incasso":988.5,"giorno":3},{"data":"2026-06-19","ts":1781827200000,"coperti":109,"arrosticini":780,"pizze":8,"hamburger":12,"tagliateR":1,"tagliateB":0,"incasso":3727.5,"giorno":4},{"data":"2026-06-20","ts":1781913600000,"coperti":219,"arrosticini":1450,"pizze":17,"hamburger":15,"tagliateR":22,"tagliateB":0,"incasso":6336.5,"giorno":5},{"data":"2026-06-21","ts":1782000000000,"coperti":112,"arrosticini":850,"pizze":11,"hamburger":11,"tagliateR":3,"tagliateB":0,"incasso":3357.0,"giorno":6},{"data":"2026-06-22","ts":1782086400000,"coperti":59,"arrosticini":315,"pizze":2,"hamburger":2,"tagliateR":4,"tagliateB":0,"incasso":1508.5,"giorno":0},{"data":"2026-06-23","ts":1782172800000,"coperti":48,"arrosticini":310,"pizze":3,"hamburger":3,"tagliateR":3,"tagliateB":0,"incasso":1489.5,"giorno":1},{"data":"2026-06-24","ts":1782259200000,"coperti":45,"arrosticini":310,"pizze":5,"hamburger":2,"tagliateR":4,"tagliateB":0,"incasso":1472.5,"giorno":2},{"data":"2026-06-25","ts":1782345600000,"coperti":112,"arrosticini":710,"pizze":11,"hamburger":7,"tagliateR":10,"tagliateB":0,"incasso":2041.0,"giorno":3},{"data":"2026-06-26","ts":1782432000000,"coperti":120,"arrosticini":715,"pizze":8,"hamburger":4,"tagliateR":4,"tagliateB":0,"incasso":3230.5,"giorno":4},{"data":"2026-06-27","ts":1782518400000,"coperti":223,"arrosticini":1675,"pizze":18,"hamburger":15,"tagliateR":6,"tagliateB":0,"incasso":6149.5,"giorno":5},{"data":"2026-06-28","ts":1782604800000,"coperti":187,"arrosticini":1050,"pizze":24,"hamburger":16,"tagliateR":10,"tagliateB":0,"incasso":5402.0,"giorno":6},{"data":"2026-06-29","ts":1782691200000,"coperti":92,"arrosticini":450,"pizze":9,"hamburger":8,"tagliateR":3,"tagliateB":0,"incasso":2127.5,"giorno":0},{"data":"2026-06-30","ts":1782777600000,"coperti":74,"arrosticini":525,"pizze":4,"hamburger":2,"tagliateR":7,"tagliateB":0,"incasso":2336.0,"giorno":1},{"data":"2026-07-01","ts":1782864000000,"coperti":70,"arrosticini":550,"pizze":2,"hamburger":2,"tagliateR":1,"tagliateB":0,"incasso":2306.5,"giorno":2},{"data":"2026-07-02","ts":1782950400000,"coperti":134,"arrosticini":835,"pizze":13,"hamburger":11,"tagliateR":2,"tagliateB":0,"incasso":3587.0,"giorno":3},{"data":"2026-07-03","ts":1783036800000,"coperti":222,"arrosticini":1250,"pizze":30,"hamburger":12,"tagliateR":6,"tagliateB":0,"incasso":7486.5,"giorno":4},{"data":"2026-07-04","ts":1783123200000,"coperti":238,"arrosticini":1480,"pizze":38,"hamburger":15,"tagliateR":14,"tagliateB":0,"incasso":7201.5,"giorno":5},{"data":"2026-07-05","ts":1783209600000,"coperti":100,"arrosticini":680,"pizze":4,"hamburger":6,"tagliateR":7,"tagliateB":0,"incasso":2858.0,"giorno":6}];
-// Precarica i dati embedded alla prima apertura (se storico vuoto)
+// PUNTO 7: precarica i dati embedded SOLO alla primissima apertura.
+// Il flag 'embed_loaded' impedisce ricaricamenti automatici successivi
+// (anche dopo "Elimina storico" — i dati non tornano da soli).
 (function(){
-  if(!storico.length && typeof STORICO_EMBED!=='undefined' && STORICO_EMBED.length){
+  var embedLoaded = false;
+  try{ embedLoaded = localStorage.getItem('embed_loaded')==='1'; }catch(e){}
+  if(!embedLoaded && !storico.length && typeof STORICO_EMBED!=='undefined' && STORICO_EMBED.length){
     storico = STORICO_EMBED.slice();
-    try{ localStorage.setItem(KEY_STOR, JSON.stringify(storico)); }catch(e){}
+    try{
+      localStorage.setItem(KEY_STOR, JSON.stringify(storico));
+      localStorage.setItem('embed_loaded','1');
+    }catch(e){}
+  } else if(!embedLoaded && storico.length){
+    // Storico già presente da backup/CSV: segna comunque il flag
+    try{ localStorage.setItem('embed_loaded','1'); }catch(e){}
   }
 })();
+
+// Ripristino manuale dei dati embedded 2025-2026
+function ripristinaDatiIniziali(){
+  if(typeof STORICO_EMBED==='undefined'||!STORICO_EMBED.length){toast('\u26A0 Nessun dato embedded disponibile','err');return}
+  if(!window.confirm('Ripristinare i '+STORICO_EMBED.length+' giorni di dati 2025-2026 embedded? I dati con la stessa data verranno sovrascritti, gli altri restano.'))return;
+  var nuovi=0,aggiornati=0;
+  STORICO_EMBED.forEach(function(ns){
+    var idx=storico.findIndex(function(s){return s.data===ns.data});
+    if(idx>=0){storico[idx]=JSON.parse(JSON.stringify(ns));aggiornati++}
+    else{storico.push(JSON.parse(JSON.stringify(ns)));nuovi++}
+  });
+  storico.sort(function(a,b){return b.ts-a.ts});
+  sv(KEY_STOR,storico);
+  calcolaCoefficienti();
+  if(document.getElementById('screen-cons').classList.contains('active'))initCons();
+  toast('\u2713 Dati iniziali: '+nuovi+' nuovi, '+aggiornati+' aggiornati','ok');
+}
 
 // Giorni selezionati per previsione
 var prevGiorniSel = {};
@@ -2822,6 +2863,21 @@ function filterStorico(period,now){
     if(period==='year')return new Date(s.ts).getFullYear()===now.getFullYear();
     return true;
   });
+}
+
+function aggiornaAvvisoBackup(){
+  var warn=document.getElementById('backup-warn-dash');
+  if(!warn)return;
+  var last=0;
+  try{ last=parseInt(localStorage.getItem('last_backup_ts')||'0'); }catch(e){}
+  var giorni=last?Math.floor((Date.now()-last)/86400000):999;
+  // Mostra solo se ci sono dati significativi da proteggere
+  var haDati=storico.length>10||orders.length>5||dipendenti.length>0;
+  warn.classList.toggle('show', haDati&&giorni>30);
+  if(giorni<999&&giorni>30){
+    var txt=warn.querySelector('.backup-warn-txt');
+    if(txt)txt.innerHTML='&#9888; <strong>Ultimo backup: '+giorni+' giorni fa.</strong> I dati vivono solo su questo telefono: esporta un backup aggiornato.';
+  }
 }
 
 function renderCruscotto(){
@@ -4178,7 +4234,12 @@ function toast(msg,type){
 // PWA
 function initPWA(){
   var icon='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%2300a854"/><text y=".9em" font-size="72" x="12">&#x1F6D2;</text></svg>';
-  var manifest={name:'Ordini Fornitori',short_name:'Ordini',start_url:window.location.href,display:'standalone',background_color:theme==='light'?'#f4f5f7':'#0a0a0a',theme_color:theme==='light'?'#f4f5f7':'#0a0a0a',icons:[{src:icon,sizes:'192x192',type:'image/svg+xml'}]};
+  var baseUrl=window.location.href.split('?')[0];
+  var manifest={name:'Ordini Fornitori',short_name:'Ordini',start_url:baseUrl,display:'standalone',background_color:theme==='light'?'#f4f5f7':'#0a0a0a',theme_color:theme==='light'?'#f4f5f7':'#0a0a0a',icons:[{src:icon,sizes:'192x192',type:'image/svg+xml'}],
+    shortcuts:[
+      {name:'Chiusura serata',short_name:'Chiusura',url:baseUrl+'?chiusura',icons:[{src:icon,sizes:'192x192'}]},
+      {name:'Nuovo ordine',short_name:'Ordine',url:baseUrl,icons:[{src:icon,sizes:'192x192'}]}
+    ]};
   var mblob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
   document.getElementById('pwa-manifest').href=URL.createObjectURL(mblob);
   document.getElementById('apple-icon').href=icon;
@@ -4195,6 +4256,30 @@ renderOrder();
 updatePendingBadge();
 initContactPicker();
 initPWA();
+// PUNTO 8: scorciatoia ?chiusura — apre direttamente il form chiusura serata
+(function(){
+  try{
+    var params=new URLSearchParams(window.location.search);
+    if(params.has('chiusura')){
+      setTimeout(function(){
+        showScreen('cons');
+        setTimeout(function(){
+          var body=document.getElementById('cons-input-body');
+          var toggle=document.getElementById('cons-input-toggle');
+          if(body&&!body.classList.contains('open')){
+            body.classList.add('open');
+            if(toggle)toggle.classList.add('open');
+            var dataEl=document.getElementById('ci-data');
+            if(dataEl&&!dataEl.value)dataEl.value=new Date().toISOString().split('T')[0];
+            renderTurnoChips();
+          }
+          var box=document.querySelector('.cons-input-box');
+          if(box)box.scrollIntoView({behavior:'smooth'});
+        },200);
+      },100);
+    }
+  }catch(e){}
+})();
 document.getElementById('modal-sup').addEventListener('click',function(e){if(e.target===this)closeSupModal()});
 document.getElementById('modal-bulk').addEventListener('click',function(e){if(e.target===this)closeBulkModal()});
 </script>
