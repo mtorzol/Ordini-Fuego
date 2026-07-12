@@ -508,6 +508,75 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
 .backup-warn-txt{flex:1;font-size:11.5px;color:var(--text);line-height:1.5}
 .backup-warn-btn{background:var(--amber);border:none;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;white-space:nowrap}
 
+
+.wyoy-box{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:13px}
+.wyoy-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wyoy-nav-btn{background:var(--s2);border:1px solid var(--border2);border-radius:8px;width:34px;height:34px;font-size:15px;color:var(--text);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.wyoy-nav-btn:active{background:var(--s3)}
+.wyoy-title{text-align:center;flex:1}
+.wyoy-week{font-size:12px;font-weight:700;color:var(--text)}
+.wyoy-range{font-size:10px;color:var(--muted);margin-top:2px}
+.wyoy-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.wyoy-table th{background:var(--s2);padding:6px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:right;border-bottom:1px solid var(--border)}
+.wyoy-table th:first-child{text-align:left}
+.wyoy-table td{padding:7px 8px;border-bottom:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace}
+.wyoy-table td:first-child{text-align:left;font-family:inherit;font-weight:600;color:var(--text)}
+.wyoy-table tr:last-child td{border-bottom:none}
+.wyoy-delta{font-weight:700;font-size:10.5px;padding:2px 6px;border-radius:5px}
+.wyoy-delta.up{background:rgba(0,168,84,.12);color:var(--green)}
+.wyoy-delta.dn{background:rgba(220,38,38,.1);color:var(--red)}
+.wyoy-delta.eq{color:var(--muted)}
+.wyoy-empty{text-align:center;font-size:11px;color:var(--muted);padding:14px;line-height:1.6}
+.wyoy-dow{display:flex;gap:3px;margin-top:12px}
+.wyoy-dow-col{flex:1;text-align:center}
+.wyoy-dow-lbl{font-size:8.5px;color:var(--muted);margin-top:3px}
+.wyoy-dow-bars{display:flex;gap:2px;align-items:flex-end;height:38px;justify-content:center}
+.wyoy-dow-bar{width:7px;border-radius:2px 2px 0 0}
+
+
+.wyoy-det-toggle{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:9px;font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;font-family:inherit;margin-top:12px}
+.wyoy-det{display:none;margin-top:10px}
+.wyoy-det.open{display:block}
+.wyoy-det-row{display:grid;grid-template-columns:34px 1fr 1fr 52px;gap:6px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--border)}
+.wyoy-det-row:last-child{border-bottom:none}
+.wyoy-det-day{font-size:10px;font-weight:700;color:var(--text);text-transform:uppercase}
+.wyoy-det-cell{background:var(--s2);border-radius:7px;padding:6px 8px}
+.wyoy-det-cell.new{background:var(--green-glow)}
+.wyoy-det-date{font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px}
+.wyoy-det-nums{font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--text);line-height:1.5}
+.wyoy-det-chiuso{font-size:10px;color:var(--muted);font-style:italic}
+.wyoy-det-head{display:grid;grid-template-columns:34px 1fr 1fr 52px;gap:6px;padding:4px;font-size:8.5px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;text-align:center}
+
+
+.wyoy-vista-tabs{display:flex;gap:5px;margin:10px 0}
+.wyoy-vista-tab{flex:1;padding:7px 4px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);font-size:10.5px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit}
+.wyoy-vista-tab.active{border-color:var(--green);color:var(--green);background:var(--green-glow)}
+.wyoy-bar-row{margin-bottom:11px}
+.wyoy-bar-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.wyoy-bar-day{font-size:11px;font-weight:700;color:var(--text)}
+.wyoy-bar-delta{font-size:10px;font-weight:700}
+.wyoy-bar-line{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.wyoy-bar-fill{height:13px;border-radius:3px;min-width:2px;flex-shrink:0}
+.wyoy-bar-txt{font-size:9.5px;color:var(--muted);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.wyoy-riga{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--border)}
+.wyoy-riga:last-child{border-bottom:none}
+.wyoy-riga-day{width:32px;font-size:11px;font-weight:700;color:var(--text)}
+.wyoy-riga-dati{flex:1;font-size:10px;line-height:1.7;font-family:'JetBrains Mono',monospace}
+.wyoy-riga-delta{font-size:13px;font-weight:700;padding:6px 9px;border-radius:8px;white-space:nowrap}
+.wyoy-gchips{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.wyoy-gchip{flex:1;min-width:36px;padding:6px 2px;border-radius:14px;border:1px solid var(--border2);background:transparent;font-size:10px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;text-align:center}
+.wyoy-gchip.sel{border-color:var(--blue);background:rgba(37,99,235,.1);color:var(--blue)}
+.wyoy-gcards{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.wyoy-gcard{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.wyoy-gcard.new{border:2px solid var(--green)}
+.wyoy-gcard-yr{font-size:9.5px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:.5px}
+.wyoy-gcard.new .wyoy-gcard-yr{color:var(--green)}
+.wyoy-gcard-big{font-size:23px;font-weight:700;line-height:1;color:var(--text)}
+.wyoy-gcard-lbl{font-size:9.5px;color:var(--muted);margin-top:2px}
+.wyoy-gcard-inc{font-size:12px;color:var(--text);margin-top:7px;font-family:'JetBrains Mono',monospace}
+.wyoy-gbadges{display:flex;gap:7px;margin-top:10px;justify-content:center;flex-wrap:wrap}
+.wyoy-gbadge{font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:7px}
+
 </style>
 </head>
 <body>
@@ -881,6 +950,9 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
     <!-- CONFRONTO ANNO SU ANNO -->
     <div id="cons-yoy-box"></div>
 
+    <!-- CONFRONTO SETTIMANALE YoY -->
+    <div id="cons-week-yoy"></div>
+
     <!-- GRAFICO ANDAMENTO -->
     <div class="cons-section">
       <div class="cons-chart-title" id="cons-chart-main-title">Andamento mensile</div>
@@ -1014,6 +1086,7 @@ body{font-family:'Nunito','Aptos','Segoe UI',sans-serif;background:var(--bg);col
         <button class="btn-reset" onclick="syncRimanenze()" style="flex:1;color:var(--blue);border-color:var(--blue)">&#8593; Sync rimanenze</button>
         <button class="btn-reset" onclick="syncPresenze()" style="flex:1;color:var(--blue);border-color:var(--blue)">&#8593; Sync presenze</button>
       </div>
+      <button class="btn-reset" onclick="syncStorico()" style="width:100%;margin-top:8px;color:var(--green);border-color:var(--green)">&#8593; Sync storico consuntivi + incassi</button>
     </div>
     <div class="steps-box">
       <h3>&#128203; Apps Script — codice aggiornato</h3>
@@ -1050,15 +1123,15 @@ function doPost(e){
       return ok({added:(data.presenze||[]).length});
     }
     if(tipo==="coperti"){
-      var sh=getOrCreateSheet(ss,S_COP,["Data","Giorno","Coperti","Arrosticini","Pizze","Hamburger","Tag.Rosse","Tag.Bianche"],"#1f5f3b");
+      var sh=getOrCreateSheet(ss,S_COP,["Data","Giorno","Coperti","Arrosticini","Pizze","Hamburger","Tag.Rosse","Tag.Bianche","Incasso"],"#1f5f3b");
       var gg=["Domenica","Lunedi","Martedi","Mercoledi","Giovedi","Venerdi","Sabato"];
-      (data.storico||[]).forEach(function(s){sh.appendRow([s.data,gg[new Date(s.data).getDay()]||"",s.coperti||0,s.arrosticini||0,s.pizze||0,s.hamburger||0,s.tagliateR||0,s.tagliateB||0]);});
+      (data.storico||[]).forEach(function(s){sh.appendRow([s.data,gg[new Date(s.data).getDay()]||"",s.coperti||0,s.arrosticini||0,s.pizze||0,s.hamburger||0,s.tagliateR||0,s.tagliateB||0,s.incasso||0]);});
       return ok({added:(data.storico||[]).length});
     }
     return err("Tipo non riconosciuto: "+tipo);
   }catch(ex){return err(ex.message);}
 }
-function doGet(){return ok({status:"online",version:"2.0"});}
+function doGet(){return ok({status:"online",version:"2.1"});}
 function ok(d){d.ok=true;return ContentService.createTextOutput(JSON.stringify(d)).setMimeType(ContentService.MimeType.JSON);}
 function err(m){return ContentService.createTextOutput(JSON.stringify({ok:false,error:m})).setMimeType(ContentService.MimeType.JSON);}</div>
         </div>
@@ -1797,6 +1870,23 @@ function syncPresenze(){
     .catch(function(){toast('\u2717 Connessione fallita','err')})
     .finally(function(){btn.disabled=false;btn.textContent='\u2191 Sync presenze'});
 }
+function syncStorico(){
+  var url=gasUrl||ld('gas_url','')||'';
+  if(!url){toast('\u26A0 Inserisci l\'URL Web App nella schermata Sync','err');return}
+  var validi=storico.filter(function(s){return s.data&&/^\d{4}-\d{2}-\d{2}$/.test(s.data)});
+  if(!validi.length){toast('\u26A0 Nessuno storico da sincronizzare','err');return}
+  if(!window.confirm('Inviare '+validi.length+' giornate (coperti, consumi e incassi) al foglio Coperti?\nNota: le righe vengono AGGIUNTE al foglio, non sostituite.'))return;
+  var btn=event.target;btn.disabled=true;btn.textContent='Invio...';
+  fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({tipo:'coperti',storico:validi})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.ok){toast('\u2713 '+validi.length+' giornate sincronizzate (con incassi)','ok')}
+      else{toast('\u2717 Errore: '+(d.error||'sconosciuto')+' \u2014 aggiorna lo script alla v2.1','err')}
+    })
+    .catch(function(){toast('\u2717 Connessione fallita','err')})
+    .finally(function(){btn.disabled=false;btn.textContent='\u2191 Sync storico consuntivi + incassi'});
+}
+
 function exportJSON(){
   var b=new Blob([JSON.stringify(orders,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ordini_'+new Date().toISOString().split('T')[0]+'.json';a.click();
@@ -4067,6 +4157,7 @@ function renderCons(){
   }
 
   renderYoY();
+  renderConfrontoSettimanale();
 
   // ── GRAFICO PRINCIPALE ──
   var chartTitle=document.getElementById('cons-chart-main-title');
@@ -4193,6 +4284,270 @@ function renderCons(){
     html+='</tbody>';
     top10El.innerHTML=html;
   }
+}
+
+// ── CONFRONTO SETTIMANALE YoY ──────────────────────────────────
+var wyoyOffset=0; // 0=settimana corrente, -1=precedente, ecc.
+
+function isoWeekInfo(d){
+  // Ritorna {year, week} ISO 8601 (settimane lun-dom)
+  var date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  var dayNum=date.getUTCDay()||7;
+  date.setUTCDate(date.getUTCDate()+4-dayNum);
+  var yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  var week=Math.ceil((((date-yearStart)/86400000)+1)/7);
+  return {year:date.getUTCFullYear(), week:week};
+}
+
+function isoWeekRange(year,week){
+  // Lunedì della settimana ISO richiesta → [start,end] in ms
+  var simple=new Date(Date.UTC(year,0,1+(week-1)*7));
+  var dow=simple.getUTCDay()||7;
+  var monday=new Date(simple);
+  monday.setUTCDate(simple.getUTCDate()-dow+1);
+  var sunday=new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate()+6);
+  sunday.setUTCHours(23,59,59,999);
+  return {start:monday.getTime(), end:sunday.getTime(), monday:monday, sunday:sunday};
+}
+
+function aggregaSettimana(range){
+  var giorni=storico.filter(function(s){return s.ts>=range.start&&s.ts<=range.end&&s.coperti>0});
+  var cop=giorni.reduce(function(a,s){return a+s.coperti},0);
+  var arr=giorni.reduce(function(a,s){return a+(s.arrosticini||0)},0);
+  var inc=giorni.reduce(function(a,s){return a+(s.incasso||0)},0);
+  // Coperti per giorno settimana (lun=0..dom=6)
+  var byDow=[0,0,0,0,0,0,0];
+  giorni.forEach(function(s){
+    var dw=(new Date(s.ts).getDay()+6)%7;
+    byDow[dw]+=s.coperti;
+  });
+  return {cop:cop,arr:arr,inc:inc,gg:giorni.length,incCop:cop>0?inc/cop:0,byDow:byDow};
+}
+
+function giorniDettaglio(range){
+  // Ritorna array[7] lun→dom: record del giorno o null
+  var out=[null,null,null,null,null,null,null];
+  storico.forEach(function(s){
+    if(s.ts>=range.start&&s.ts<=range.end){
+      var dw=(new Date(s.ts).getDay()+6)%7;
+      out[dw]=s;
+    }
+  });
+  return out;
+}
+
+var wyoyDetOpen=false;
+var wyoyVista='barre'; // barre | righe | giorno
+var wyoyGiornoSel=null; // indice 0-6 per vista giorno (null = auto)
+
+function setWyoyVista(v){
+  wyoyVista=v;
+  renderConfrontoSettimanale();
+}
+
+function selWyoyGiorno(i){
+  wyoyGiornoSel=i;
+  renderConfrontoSettimanale();
+}
+
+function wyoyDelta(n,o){
+  if(!o&&!n)return{txt:'\u2014',col:'var(--muted)',bg:'transparent'};
+  if(!o)return{txt:'new',col:'var(--green)',bg:'rgba(0,168,84,.12)'};
+  var p=Math.round(((n-o)/o)*100);
+  return{txt:(p>0?'+':'')+p+'%',col:p>=0?'var(--green)':'var(--red)',bg:p>=0?'rgba(0,168,84,.12)':'rgba(220,38,38,.1)'};
+}
+
+function renderWyoyVista(detOld,detNew,annoOld,annoNew){
+  var GF=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+  var eu=function(n){return '\u20AC'+Math.round(n).toLocaleString('it-IT')};
+  var fd=function(s){if(!s)return'';var d=new Date(s.ts);return d.getDate()+'/'+(d.getMonth()+1)};
+  var html='';
+
+  if(wyoyVista==='barre'){
+    // ── VISTA A: barre orizzontali affiancate ──
+    var maxC=1;
+    for(var i=0;i<7;i++){
+      if(detOld[i]&&detOld[i].coperti>maxC)maxC=detOld[i].coperti;
+      if(detNew[i]&&detNew[i].coperti>maxC)maxC=detNew[i].coperti;
+    }
+    for(var i=0;i<7;i++){
+      var sO=detOld[i],sN=detNew[i];
+      if(!sO&&!sN)continue;
+      var cO=sO?sO.coperti:0, cN=sN?sN.coperti:0;
+      var d=(cO&&cN)?wyoyDelta(cN,cO):null;
+      var wO=Math.round(cO/maxC*100), wN=Math.round(cN/maxC*100);
+      html+='<div class="wyoy-bar-row">'
+        +'<div class="wyoy-bar-head"><span class="wyoy-bar-day">'+GF[i]+'</span>'
+        +(d?'<span class="wyoy-bar-delta" style="color:'+d.col+'">'+d.txt+' cop</span>':'')
+        +'</div>'
+        +'<div class="wyoy-bar-line"><div class="wyoy-bar-fill" style="width:'+Math.max(wO,1)+'%;background:var(--muted);opacity:.45"></div>'
+        +'<span class="wyoy-bar-txt">'+(sO?(cO?cO+' \u2022 '+(sO.incasso?eu(sO.incasso):'-')+' ('+fd(sO)+')':'chiuso '+fd(sO)):'\u2014')+'</span></div>'
+        +'<div class="wyoy-bar-line"><div class="wyoy-bar-fill" style="width:'+Math.max(wN,1)+'%;background:var(--green)"></div>'
+        +'<span class="wyoy-bar-txt" style="color:var(--text)">'+(sN?(cN?cN+' \u2022 '+(sN.incasso?eu(sN.incasso):'-')+' ('+fd(sN)+')':'chiuso '+fd(sN)):'\u2014')+'</span></div>'
+      +'</div>';
+    }
+    html+='<div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px">grigio = '+annoOld+' \u2022 verde = '+annoNew+'</div>';
+
+  } else if(wyoyVista==='righe'){
+    // ── VISTA B: righe compatte con delta grande ──
+    for(var i=0;i<7;i++){
+      var sO=detOld[i],sN=detNew[i];
+      if(!sO&&!sN)continue;
+      var cO=sO?sO.coperti:0, cN=sN?sN.coperti:0;
+      var d=(cO&&cN)?wyoyDelta(cN,cO):wyoyDelta(cN,cO);
+      html+='<div class="wyoy-riga">'
+        +'<div class="wyoy-riga-day">'+GF[i]+'</div>'
+        +'<div class="wyoy-riga-dati">'
+        +'<span style="color:var(--muted)">'+(sO?(fd(sO)+': '+(cO?cO+' cop \u2022 '+(sO.incasso?eu(sO.incasso):'-'):'chiuso')):'\u2014 nessun dato')+'</span><br>'
+        +'<span style="color:var(--text);font-weight:700">'+(sN?(fd(sN)+': '+(cN?cN+' cop \u2022 '+(sN.incasso?eu(sN.incasso):'-'):'chiuso')):'\u2014 nessun dato')+'</span>'
+        +'</div>'
+        +'<div class="wyoy-riga-delta" style="color:'+d.col+';background:'+d.bg+'">'+d.txt+'</div>'
+      +'</div>';
+    }
+
+  } else {
+    // ── VISTA C: un giorno alla volta ──
+    // Default: primo giorno con dati in entrambi gli anni, altrimenti primo con dati
+    var sel=wyoyGiornoSel;
+    if(sel===null||sel===undefined){
+      sel=0;
+      for(var i=0;i<7;i++){
+        if(detOld[i]&&detNew[i]&&detOld[i].coperti&&detNew[i].coperti){sel=i;break}
+        if((detOld[i]&&detOld[i].coperti)||(detNew[i]&&detNew[i].coperti)){sel=i}
+      }
+    }
+    html+='<div class="wyoy-gchips">';
+    for(var i=0;i<7;i++){
+      var ha=(detOld[i]&&detOld[i].coperti)||(detNew[i]&&detNew[i].coperti);
+      html+='<button class="wyoy-gchip'+(i===sel?' sel':'')+'" onclick="selWyoyGiorno('+i+')"'+(ha?'':' style="opacity:.35"')+'>'+GF[i]+'</button>';
+    }
+    html+='</div>';
+    var sO=detOld[sel],sN=detNew[sel];
+    var cO=sO?sO.coperti:0, cN=sN?sN.coperti:0;
+    function gcard(s,anno,isNew){
+      var inner='<div class="wyoy-gcard-yr">'+anno+(s?' \u2022 '+fd(s):'')+'</div>';
+      if(!s)inner+='<div class="wyoy-gcard-lbl" style="padding:14px 0">nessun dato</div>';
+      else if(!s.coperti){
+        var nota=notaGiornata(s.data);
+        inner+='<div class="wyoy-gcard-lbl" style="padding:14px 0">chiuso'+(nota&&nota!=='Chiuso'?'<br>'+nota:'')+'</div>';
+      } else {
+        inner+='<div class="wyoy-gcard-big">'+s.coperti+'</div><div class="wyoy-gcard-lbl">coperti</div>'
+          +'<div class="wyoy-gcard-inc">'+(s.incasso?eu(s.incasso):'\u2014')+(s.incasso&&s.coperti?'<br><span style="font-size:10px;color:var(--muted)">\u20AC/cop '+(s.incasso/s.coperti).toFixed(1).replace('.',','):'')+'</span></div>'
+          +'<div style="font-size:9.5px;color:var(--muted);margin-top:5px">'+(s.arrosticini||0)+' arrosticini</div>';
+      }
+      return '<div class="wyoy-gcard'+(isNew?' new':'')+'">'+inner+'</div>';
+    }
+    html+='<div class="wyoy-gcards">'+gcard(sO,annoOld,false)+gcard(sN,annoNew,true)+'</div>';
+    if(cO&&cN){
+      var dC=wyoyDelta(cN,cO);
+      var dI=(sO.incasso&&sN.incasso)?wyoyDelta(sN.incasso,sO.incasso):null;
+      html+='<div class="wyoy-gbadges">'
+        +'<span class="wyoy-gbadge" style="color:'+dC.col+';background:'+dC.bg+'">coperti '+dC.txt+'</span>'
+        +(dI?'<span class="wyoy-gbadge" style="color:'+dI.col+';background:'+dI.bg+'">incasso '+dI.txt+'</span>':'')
+      +'</div>';
+    }
+  }
+  return html;
+}
+
+function toggleWyoyDet(){
+  wyoyDetOpen=!wyoyDetOpen;
+  var det=document.getElementById('wyoy-det');
+  var btn=document.getElementById('wyoy-det-btn');
+  if(det)det.classList.toggle('open',wyoyDetOpen);
+  if(btn)btn.innerHTML=wyoyDetOpen?'&#9650; Nascondi dettaglio giornaliero':'&#128203; Dettaglio giorno per giorno';
+}
+
+function wyoyNav(dir){
+  wyoyOffset+=dir;
+  wyoyGiornoSel=null;
+  if(wyoyOffset>0)wyoyOffset=0; // non oltre la settimana corrente
+  renderConfrontoSettimanale();
+}
+
+function renderConfrontoSettimanale(){
+  var el=document.getElementById('cons-week-yoy');if(!el)return;
+  // Serve almeno 2 anni di dati
+  var anni=[...new Set(storico.filter(function(s){return s.coperti>0}).map(function(s){return s.data.substring(0,4)}))].sort();
+  if(anni.length<2){el.innerHTML='';return}
+  var annoNew=parseInt(anni[anni.length-1]);
+  var annoOld=annoNew-1;
+  if(anni.indexOf(String(annoOld))<0){el.innerHTML='';return}
+
+  // Settimana target = corrente + offset
+  var ref=new Date();ref.setDate(ref.getDate()+wyoyOffset*7);
+  var iso=isoWeekInfo(ref);
+  // Range per i due anni: stessa settimana ISO
+  var rNew=isoWeekRange(annoNew,iso.week);
+  var rOld=isoWeekRange(annoOld,iso.week);
+  var vNew=aggregaSettimana(rNew);
+  var vOld=aggregaSettimana(rOld);
+
+  function fdate(d){return d.getUTCDate()+'/'+(d.getUTCMonth()+1)}
+  function delta(n,o,inverti){
+    if(o===0&&n===0)return '<span class="wyoy-delta eq">\u2014</span>';
+    if(o===0)return '<span class="wyoy-delta up">nuovo</span>';
+    var p=Math.round(((n-o)/o)*100);
+    var cls=p>0?'up':p<0?'dn':'eq';
+    var freccia=p>0?'\u25B2 +':p<0?'\u25BC ':'';
+    return '<span class="wyoy-delta '+cls+'">'+freccia+Math.abs(p)+'%</span>';
+  }
+  function eu(n){return '\u20AC'+Math.round(n).toLocaleString('it-IT')}
+
+  var html='<div class="wyoy-box">';
+  html+='<div class="cons-section-title" style="margin-bottom:10px">&#128197; Confronto settimanale '+annoNew+' vs '+annoOld+'</div>';
+  html+='<div class="wyoy-nav">';
+  html+='<button class="wyoy-nav-btn" onclick="wyoyNav(-1)">&#8592;</button>';
+  html+='<div class="wyoy-title"><div class="wyoy-week">Settimana '+iso.week+'</div>';
+  html+='<div class="wyoy-range">'+fdate(rNew.monday)+' \u2013 '+fdate(rNew.sunday)+' \u2022 vs '+fdate(rOld.monday)+' \u2013 '+fdate(rOld.sunday)+' '+annoOld+'</div></div>';
+  html+='<button class="wyoy-nav-btn" onclick="wyoyNav(1)"'+(wyoyOffset>=0?' style="opacity:.3;pointer-events:none"':'')+'>&#8594;</button>';
+  html+='</div>';
+
+  if(vNew.gg===0&&vOld.gg===0){
+    html+='<div class="wyoy-empty">Nessun dato in questa settimana per entrambi gli anni.<br>Usa le frecce per navigare le settimane di stagione.</div>';
+  } else {
+    html+='<table class="wyoy-table">';
+    html+='<thead><tr><th>Voce</th><th>'+annoOld+'</th><th>'+annoNew+'</th><th>\u0394</th></tr></thead><tbody>';
+    html+='<tr><td>Coperti</td><td>'+vOld.cop.toLocaleString('it-IT')+'</td><td>'+vNew.cop.toLocaleString('it-IT')+'</td><td>'+delta(vNew.cop,vOld.cop)+'</td></tr>';
+    html+='<tr><td>Arrosticini</td><td>'+vOld.arr.toLocaleString('it-IT')+'</td><td>'+vNew.arr.toLocaleString('it-IT')+'</td><td>'+delta(vNew.arr,vOld.arr)+'</td></tr>';
+    if(vNew.inc>0||vOld.inc>0){
+      html+='<tr><td>Incasso</td><td>'+(vOld.inc?eu(vOld.inc):'-')+'</td><td>'+(vNew.inc?eu(vNew.inc):'-')+'</td><td>'+delta(vNew.inc,vOld.inc)+'</td></tr>';
+      html+='<tr><td>\u20AC / Coperto</td><td>'+(vOld.incCop?vOld.incCop.toFixed(1).replace('.',','):'-')+'</td><td>'+(vNew.incCop?vNew.incCop.toFixed(1).replace('.',','):'-')+'</td><td>'+delta(vNew.incCop,vOld.incCop)+'</td></tr>';
+    }
+    html+='<tr><td>Giorni aperti</td><td>'+vOld.gg+'</td><td>'+vNew.gg+'</td><td>'+(vNew.gg===vOld.gg?'<span class="wyoy-delta eq">\u2014</span>':delta(vNew.gg,vOld.gg))+'</td></tr>';
+    html+='</tbody></table>';
+
+    // Mini griglia giorni: barre affiancate vecchio/nuovo
+    var maxDow=Math.max.apply(null,vNew.byDow.concat(vOld.byDow))||1;
+    var GS=['L','M','M','G','V','S','D'];
+    html+='<div class="wyoy-dow">';
+    for(var i=0;i<7;i++){
+      var hOld=Math.round((vOld.byDow[i]/maxDow)*34)+2;
+      var hNew=Math.round((vNew.byDow[i]/maxDow)*34)+2;
+      html+='<div class="wyoy-dow-col"><div class="wyoy-dow-bars">'
+        +'<div class="wyoy-dow-bar" style="height:'+hOld+'px;background:var(--muted);opacity:.45" title="'+annoOld+': '+vOld.byDow[i]+'"></div>'
+        +'<div class="wyoy-dow-bar" style="height:'+hNew+'px;background:var(--green)" title="'+annoNew+': '+vNew.byDow[i]+'"></div>'
+        +'</div><div class="wyoy-dow-lbl">'+GS[i]+'</div></div>';
+    }
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--muted);margin-top:6px;text-align:center">grigio = '+annoOld+' \u2022 verde = '+annoNew+'</div>';
+
+    // ── DETTAGLIO A TRE VISTE: Barre / Righe / Giorno ──
+    var detOld=giorniDettaglio(rOld);
+    var detNew=giorniDettaglio(rNew);
+    html+='<button class="wyoy-det-toggle" id="wyoy-det-btn" onclick="toggleWyoyDet()">'+(wyoyDetOpen?'&#9650; Nascondi dettaglio giornaliero':'&#128203; Dettaglio giorno per giorno')+'</button>';
+    html+='<div class="wyoy-det'+(wyoyDetOpen?' open':'')+'" id="wyoy-det">';
+    html+='<div class="wyoy-vista-tabs">'
+      +'<button class="wyoy-vista-tab'+(wyoyVista==='barre'?' active':'')+'" onclick="setWyoyVista(\'barre\')">&#128202; Barre</button>'
+      +'<button class="wyoy-vista-tab'+(wyoyVista==='righe'?' active':'')+'" onclick="setWyoyVista(\'righe\')">&#128291; Righe</button>'
+      +'<button class="wyoy-vista-tab'+(wyoyVista==='giorno'?' active':'')+'" onclick="setWyoyVista(\'giorno\')">&#128070; Giorno</button>'
+    +'</div>';
+    html+=renderWyoyVista(detOld,detNew,annoOld,annoNew);
+    html+='</div>';
+  }
+  html+='</div>';
+  el.innerHTML=html;
 }
 
 function renderYoY(){
