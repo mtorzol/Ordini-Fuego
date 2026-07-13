@@ -1141,6 +1141,7 @@ function err(m){return ContentService.createTextOutput(JSON.stringify({ok:false,
     <div class="sync-box">
       <h3>&#128269; Diagnostica</h3>
       <div id="diag-out" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8;margin-bottom:10px"></div>
+      <button class="btn-reset" onclick="testScript()" style="width:100%;margin-bottom:8px;color:var(--green);border-color:var(--green)">&#128295; TEST SCRIPT GOOGLE — verifica versione</button>
       <div style="display:flex;gap:8px">
         <button class="btn-reset" onclick="runDiag()" style="flex:1">&#128269; Scansiona</button>
         <button class="btn-reset" onclick="forceMigrate()" style="flex:1;color:var(--amber)">&#9889; Forza recupero</button>
@@ -1953,6 +1954,51 @@ function importBackup(input){
 }
 
 // DIAGNOSTICA
+function testScript(){
+  var url=gasUrl||ld('gas_url','')||'';
+  var out=document.getElementById('diag-out');
+  if(!url){
+    if(out)out.innerHTML='<span style="color:var(--red)">\u2717 Nessun URL Web App configurato. Incollalo nel campo sopra.</span>';
+    return;
+  }
+  if(out)out.innerHTML='\u23F3 Contatto lo script Google...';
+  fetch(url,{method:'GET'})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var v=d.version||'sconosciuta (v1?)';
+      var righe=[];
+      righe.push('<strong style="color:var(--text)">Risposta script Google:</strong>');
+      righe.push('Stato: '+(d.ok||d.status==='online'?'\u2713 online':'\u2717 problema'));
+      righe.push('Versione: <strong>'+v+'</strong>');
+      righe.push('');
+      if(v==='2.1'){
+        righe.push('<span style="color:var(--green)">\u2713 PERFETTO \u2014 lo script gestisce tutto:</span>');
+        righe.push('\u2022 Ordini \u2192 foglio "Ordini"');
+        righe.push('\u2022 Rimanenze \u2192 foglio "Rimanenze"');
+        righe.push('\u2022 Presenze \u2192 foglio "Presenze"');
+        righe.push('\u2022 Storico+incassi \u2192 foglio "Coperti"');
+        righe.push('');
+        righe.push('I fogli si creano al PRIMO invio di ogni tipo.');
+      } else if(v==='2.0'){
+        righe.push('<span style="color:var(--amber)">\u26A0 Script v2.0 \u2014 manca la colonna Incasso.</span>');
+        righe.push('Aggiorna alla v2.1 (codice qui sopra) e ridistribuisci.');
+      } else {
+        righe.push('<span style="color:var(--red)">\u2717 SCRIPT VECCHIO (solo ordini!)</span>');
+        righe.push('Per questo su Google vedi SOLO il foglio Ordini.');
+        righe.push('');
+        righe.push('<strong>Da fare:</strong>');
+        righe.push('1. Copia il codice v2.1 qui sopra');
+        righe.push('2. script.google.com \u2192 sostituisci tutto');
+        righe.push('3. Distribuisci \u2192 Gestisci distribuzioni \u2192 \u270F \u2192 <strong>NUOVA VERSIONE</strong> \u2192 Distribuisci');
+        righe.push('4. Rifai questo test: deve dire 2.1');
+      }
+      if(out)out.innerHTML=righe.join('<br>');
+    })
+    .catch(function(e){
+      if(out)out.innerHTML='<span style="color:var(--red)">\u2717 Connessione fallita: '+e.message+'<br><br>Verifica che:<br>\u2022 l\'URL sia quello della Web App (finisce con /exec)<br>\u2022 la distribuzione sia "Chiunque" come accesso</span>';
+    });
+}
+
 function runDiag(){
   try{
     var out=document.getElementById('diag-out');if(!out)return;
